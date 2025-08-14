@@ -23,7 +23,7 @@ const FaceVerificationScreen = ({ navigation }) => {
       'You can verify your profile later in settings to increase trust and visibility.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Skip', onPress: () => navigation.navigate('Welcome') } // For now, go back to welcome
+        { text: 'Skip', onPress: () => navigation.navigate('ProfileSetup') } // Skip to profile setup
       ]
     );
   };

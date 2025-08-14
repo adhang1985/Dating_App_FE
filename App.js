@@ -18,6 +18,15 @@ import FaceVerificationScreen from './src/screens/FaceVerificationScreen';
 import FaceVerificationProgressScreen from './src/screens/FaceVerificationProgressScreen';
 import FaceVerificationSuccessScreen from './src/screens/FaceVerificationSuccessScreen';
 
+// Profile Setup screens
+import ProfileSetupScreen from './src/screens/ProfileSetupScreen';
+import FamilyScreen from './src/screens/FamilyScreen';
+import EducationScreen from './src/screens/EducationScreen';
+import LocationScreen from './src/screens/LocationScreen';
+import ProfessionScreen from './src/screens/ProfessionScreen';
+import EducationLevelScreen from './src/screens/EducationLevelScreen';
+import EthnicityScreen from './src/screens/EthnicityScreen';
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -44,6 +53,15 @@ export default function App() {
         <Stack.Screen name="FaceVerification" component={FaceVerificationScreen} />
         <Stack.Screen name="FaceVerificationProgress" component={FaceVerificationProgressScreen} />
         <Stack.Screen name="FaceVerificationSuccess" component={FaceVerificationSuccessScreen} />
+        
+        {/* Profile Setup Flow */}
+        <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
+        <Stack.Screen name="Family" component={FamilyScreen} />
+        <Stack.Screen name="Education" component={EducationScreen} />
+        <Stack.Screen name="Location" component={LocationScreen} />
+        <Stack.Screen name="Profession" component={ProfessionScreen} />
+        <Stack.Screen name="EducationLevel" component={EducationLevelScreen} />
+        <Stack.Screen name="Ethnicity" component={EthnicityScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

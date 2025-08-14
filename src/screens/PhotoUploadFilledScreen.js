@@ -97,7 +97,7 @@ const PhotoUploadFilledScreen = ({ navigation, route }) => {
     };
     
     console.log('Profile created:', profileData);
-    console.log('Profile setup completed, proceeding to face verification');
+    console.log('Photos uploaded, proceeding to face verification');
     navigation.navigate('FaceVerification', profileData);
   };
 

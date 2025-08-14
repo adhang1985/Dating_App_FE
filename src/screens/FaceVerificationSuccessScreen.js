@@ -14,9 +14,9 @@ import { BlurView } from 'expo-blur';
 
 const FaceVerificationSuccessScreen = ({ navigation }) => {
   const handleContinue = () => {
-    console.log('Face verification completed');
-    // Navigate to next screen in the flow (could be home/main app)
-    navigation.navigate('Welcome'); // For now, back to welcome - update as needed
+    console.log('Face verification completed, proceeding to profile setup');
+    // Navigate to profile setup after face verification
+    navigation.navigate('ProfileSetup');
   };
 
   const handleBack = () => {

@@ -16,7 +16,6 @@ const SignUpScreen = ({ navigation }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showEmailForm, setShowEmailForm] = useState(false);
 
   const handleGoogleSignUp = () => {
     // Mock Google sign up
@@ -34,9 +33,7 @@ const SignUpScreen = ({ navigation }) => {
     navigation.navigate('PhoneNumber');
   };
 
-  const handleEmailSignUp = () => {
-    setShowEmailForm(true);
-  };
+
 
   const handleContinueWithEmail = () => {
     // Mock email sign up validation
@@ -83,51 +80,45 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.phoneButton}
           />
           
-          {!showEmailForm ? (
-            <TouchableOpacity onPress={handleEmailSignUp} style={styles.emailLinkContainer}>
-              <Text style={styles.emailLink}>Join Us with Email</Text>
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.emailForm}>
-              <Text style={styles.emailFormTitle}>Join us with Email</Text>
-              
-              <CustomInput
-                placeholder="Enter Your Name"
-                value={name}
-                onChangeText={setName}
-              />
-              
-              <CustomInput
-                placeholder="example@gmail.com"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-              />
-              
-              <CustomInput
-                placeholder="••••••••••••"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-              
-              <CustomButton
-                title="Continue"
-                onPress={handleContinueWithEmail}
-                variant="primary"
-                style={styles.continueButton}
-              />
-              
-              <View style={styles.signInContainer}>
-                <Text style={styles.signInText}>
-                  Already have an Account?{' '}
-                  <Text style={styles.signInLink} onPress={handleSignIn}>
-                    Sign In
-                  </Text>
+          <View style={styles.emailForm}>
+            <Text style={styles.emailFormTitle}>Join us with Email</Text>
+            
+            <CustomInput
+              placeholder="Enter Your Name"
+              value={name}
+              onChangeText={setName}
+            />
+            
+            <CustomInput
+              placeholder="example@gmail.com"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+            />
+            
+            <CustomInput
+              placeholder="••••••••••••"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+            
+            <CustomButton
+              title="Continue"
+              onPress={handleContinueWithEmail}
+              variant="primary"
+              style={styles.continueButton}
+            />
+            
+            <View style={styles.signInContainer}>
+              <Text style={styles.signInText}>
+                Already have an Account?{' '}
+                <Text style={styles.signInLink} onPress={handleSignIn}>
+                  Sign In
                 </Text>
-              </View>
+              </Text>
             </View>
-          )}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -160,16 +151,7 @@ const styles = StyleSheet.create({
   phoneButton: {
     marginBottom: 20,
   },
-  emailLinkContainer: {
-    alignItems: 'center',
-    paddingVertical: 15,
-  },
-  emailLink: {
-    color: '#666666',
-    fontSize: 16,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
+
   emailFormTitle: {
     fontSize: 20,
     color: '#333333',

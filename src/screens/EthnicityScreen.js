@@ -26,9 +26,7 @@ const EthnicityScreen = ({ navigation }) => {
   ];
 
   const handleNext = () => {
-    // Profile setup complete, navigate to main app
-    console.log('Profile setup complete! Profile created successfully');
-    navigation.navigate('Welcome'); // Navigate to main app
+    navigation.navigate('Pets');
   };
 
   const handleBack = () => {
@@ -36,7 +34,7 @@ const EthnicityScreen = ({ navigation }) => {
   };
 
   const handleSkip = () => {
-    navigation.navigate('Welcome'); // Skip to main app
+    navigation.navigate('Pets');
   };
 
   const renderOption = (option) => (
@@ -67,7 +65,7 @@ const EthnicityScreen = ({ navigation }) => {
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `100%` }]} />
+          <View style={[styles.progress, { width: `${58.3}%` }]} />
         </View>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>

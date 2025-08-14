@@ -20,6 +20,11 @@ import FaceVerificationSuccessScreen from './src/screens/FaceVerificationSuccess
 
 // Profile Setup screens
 import ProfileSetupScreen from './src/screens/ProfileSetupScreen';
+import PetsScreen from './src/screens/PetsScreen';
+import InterestsScreen from './src/screens/InterestsScreen';
+import PronounsScreen from './src/screens/PronounsScreen';
+import GenderIdentityScreen from './src/screens/GenderIdentityScreen';
+import SexualOrientationScreen from './src/screens/SexualOrientationScreen';
 import FamilyScreen from './src/screens/FamilyScreen';
 import EducationScreen from './src/screens/EducationScreen';
 import LocationScreen from './src/screens/LocationScreen';
@@ -56,6 +61,11 @@ export default function App() {
         
         {/* Profile Setup Flow */}
         <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
+        <Stack.Screen name="Pets" component={PetsScreen} />
+        <Stack.Screen name="Interests" component={InterestsScreen} />
+        <Stack.Screen name="Pronouns" component={PronounsScreen} />
+        <Stack.Screen name="GenderIdentity" component={GenderIdentityScreen} />
+        <Stack.Screen name="SexualOrientation" component={SexualOrientationScreen} />
         <Stack.Screen name="Family" component={FamilyScreen} />
         <Stack.Screen name="Education" component={EducationScreen} />
         <Stack.Screen name="Location" component={LocationScreen} />

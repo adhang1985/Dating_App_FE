@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,11 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  Dimensions
+  Dimensions,
+  Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomInput from '../components/CustomInput';
 
 const { width } = Dimensions.get('window');
@@ -16,21 +18,36 @@ const { width } = Dimensions.get('window');
 const ProfileSetupScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [birthDate, setBirthDate] = useState('');
+  const [birthDate, setBirthDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [height, setHeight] = useState('');
 
-  const handleDateChange = (text) => {
-    // Remove all non-numeric characters
-    const cleaned = text.replace(/[^0-9]/g, '');
+  // Cleanup effect to ensure date picker is closed when component unmounts
+  useEffect(() => {
+    return () => {
+      setShowDatePicker(false);
+    };
+  }, []);
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || birthDate;
     
-    // Add formatting
-    if (cleaned.length <= 2) {
-      setBirthDate(cleaned);
-    } else if (cleaned.length <= 4) {
-      setBirthDate(cleaned.slice(0, 2) + '/' + cleaned.slice(2));
-    } else if (cleaned.length <= 8) {
-      setBirthDate(cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4) + '/' + cleaned.slice(4));
+    // Close date picker on Android, keep open on iOS
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
     }
+    
+    // Only update date if user didn't cancel
+    if (selectedDate) {
+      setBirthDate(currentDate);
+    }
+  };
+
+  const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   const handleNext = () => {
@@ -47,7 +64,7 @@ const ProfileSetupScreen = ({ navigation }) => {
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `${14.3}%` }]} />
+          <View style={[styles.progress, { width: `${8.3}%` }]} />
         </View>
       </View>
 
@@ -75,14 +92,27 @@ const ProfileSetupScreen = ({ navigation }) => {
           {/* Date of Birth Section */}
           <Text style={styles.sectionTitle}>When were you born?</Text>
           
-          <CustomInput
-            placeholder="DD / MM / YYYY"
-            value={birthDate}
-            onChangeText={handleDateChange}
-            style={styles.input}
-            keyboardType="numeric"
-            maxLength={10}
-          />
+          <TouchableOpacity 
+            style={styles.datePickerButton}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={styles.datePickerText}>
+              {formatDate(birthDate)}
+            </Text>
+            <Ionicons name="calendar-outline" size={20} color="#999999" />
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={birthDate}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={handleDateChange}
+              maximumDate={new Date()}
+              minimumDate={new Date(1940, 0, 1)}
+              onTouchCancel={() => setShowDatePicker(false)}
+            />
+          )}
 
           {/* Height Section */}
           <Text style={styles.sectionTitle}>How tall are you?</Text>
@@ -163,6 +193,23 @@ const styles = StyleSheet.create({
   },
   input: {
     marginVertical: 8,
+  },
+  datePickerButton: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#FFFFFF',
+    marginVertical: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: '#333333',
+    flex: 1,
   },
   heightContainer: {
     flexDirection: 'row',

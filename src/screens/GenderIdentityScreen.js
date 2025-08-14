@@ -8,14 +8,22 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import CustomInput from '../components/CustomInput';
 
-const ProfessionScreen = ({ navigation }) => {
-  const [workplace, setWorkplace] = useState('');
-  const [role, setRole] = useState('');
+const GenderIdentityScreen = ({ navigation }) => {
+  const [selectedGender, setSelectedGender] = useState('');
+
+  const genderOptions = [
+    { value: 'woman', label: 'Woman' },
+    { value: 'man', label: 'Man' },
+    { value: 'non-binary', label: 'Non-binary' },
+    { value: 'trans-woman', label: 'Trans Woman' },
+    { value: 'trans-man', label: 'Trans Man' },
+    { value: 'self-describe', label: 'Prefer to self-describe' },
+    { value: 'prefer-not-say', label: 'Prefer not to say' },
+  ];
 
   const handleNext = () => {
-    navigation.navigate('EducationLevel');
+    navigation.navigate('SexualOrientation');
   };
 
   const handleBack = () => {
@@ -23,15 +31,33 @@ const ProfessionScreen = ({ navigation }) => {
   };
 
   const handleSkip = () => {
-    navigation.navigate('EducationLevel');
+    navigation.navigate('SexualOrientation');
   };
+
+  const renderOption = (option) => (
+    <TouchableOpacity
+      key={option.value}
+      style={[
+        styles.optionButton,
+        selectedGender === option.value && styles.selectedOption
+      ]}
+      onPress={() => setSelectedGender(option.value)}
+    >
+      <Text style={[
+        styles.optionText,
+        selectedGender === option.value && styles.selectedOptionText
+      ]}>
+        {option.label}
+      </Text>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `${41.7}%` }]} />
+          <View style={[styles.progress, { width: `${91.7}%` }]} />
         </View>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>
@@ -39,28 +65,12 @@ const ProfessionScreen = ({ navigation }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Profession</Text>
+        <Text style={styles.title}>How Do You Identify?</Text>
 
         <View style={styles.formContainer}>
-          {/* Workplace Section */}
-          <Text style={styles.sectionTitle}>What is your workplace?</Text>
-          
-          <CustomInput
-            placeholder="Name of Workplace"
-            value={workplace}
-            onChangeText={setWorkplace}
-            style={styles.input}
-          />
-
-          {/* Role Section */}
-          <Text style={styles.sectionTitle}>Your role at work</Text>
-          
-          <CustomInput
-            placeholder="Your role or position"
-            value={role}
-            onChangeText={setRole}
-            style={styles.input}
-          />
+          <View style={styles.optionsContainer}>
+            {genderOptions.map(option => renderOption(option))}
+          </View>
 
           <Text style={styles.disclaimer}>
             This detail will appear on your public profile.
@@ -134,21 +144,36 @@ const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333333',
-    marginBottom: 20,
-    marginTop: 20,
+  optionsContainer: {
+    marginBottom: 30,
   },
-  input: {
-    marginVertical: 8,
+  optionButton: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 25,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    marginVertical: 6,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  selectedOption: {
+    backgroundColor: '#E8F2FF',
+    borderColor: '#1B5EBD',
+  },
+  optionText: {
+    fontSize: 16,
+    color: '#666666',
+    fontWeight: '500',
+  },
+  selectedOptionText: {
+    color: '#1B5EBD',
+    fontWeight: '600',
   },
   disclaimer: {
     fontSize: 14,
     color: '#999999',
     textAlign: 'left',
-    marginTop: 30,
+    marginTop: 20,
     lineHeight: 20,
   },
   navigationContainer: {
@@ -179,4 +204,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfessionScreen;
+export default GenderIdentityScreen;

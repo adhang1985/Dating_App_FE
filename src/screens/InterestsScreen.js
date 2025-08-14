@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,26 +9,23 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const FamilyScreen = ({ navigation }) => {
-  const [hasChildren, setHasChildren] = useState('');
-  const [familyPlans, setFamilyPlans] = useState('');
+const InterestsScreen = ({ navigation }) => {
+  const [selectedInterests, setSelectedInterests] = useState(['Music', 'Photography']);
 
-  const childrenOptions = [
-    { value: 'no', label: "Don't have Children" },
-    { value: 'yes', label: 'Have Children' },
-    { value: 'prefer-not-say', label: 'Prefer not to say' },
-  ];
-
-  const familyPlansOptions = [
-    { value: 'no', label: "Don't want children" },
-    { value: 'yes', label: 'Want Children' },
-    { value: 'open', label: 'Open to Children' },
-    { value: 'not-sure', label: 'Not Sure' },
-    { value: 'prefer-not-say', label: 'Prefer not to say' },
+  const interestOptions = [
+    { value: 'Music', label: 'Music', icon: 'musical-notes' },
+    { value: 'Games', label: 'Games', icon: 'game-controller' },
+    { value: 'Books', label: 'Books', icon: 'book' },
+    { value: 'Photography', label: 'Photography', icon: 'camera' },
+    { value: 'Travel', label: 'Travel', icon: 'airplane' },
+    { value: 'Sports', label: 'Sports', icon: 'basketball' },
+    { value: 'Cooking', label: 'Cooking', icon: 'restaurant' },
+    { value: 'Art', label: 'Art', icon: 'brush' },
+    { value: 'Movies', label: 'Movies', icon: 'film' },
   ];
 
   const handleNext = () => {
-    navigation.navigate('Education');
+    navigation.navigate('Pronouns');
   };
 
   const handleBack = () => {
@@ -36,33 +33,52 @@ const FamilyScreen = ({ navigation }) => {
   };
 
   const handleSkip = () => {
-    navigation.navigate('Education');
+    navigation.navigate('Pronouns');
   };
 
-  const renderOption = (option, selectedValue, onSelect) => (
-    <TouchableOpacity
-      key={option.value}
-      style={[
-        styles.optionButton,
-        selectedValue === option.value && styles.selectedOption
-      ]}
-      onPress={() => onSelect(option.value)}
-    >
-      <Text style={[
-        styles.optionText,
-        selectedValue === option.value && styles.selectedOptionText
-      ]}>
-        {option.label}
-      </Text>
-    </TouchableOpacity>
-  );
+  const toggleInterest = useCallback((interest) => {
+    setSelectedInterests(prev => {
+      if (prev.includes(interest)) {
+        return prev.filter(item => item !== interest);
+      } else {
+        return [...prev, interest];
+      }
+    });
+  }, []);
+
+  const renderInterest = (interest) => {
+    const isSelected = selectedInterests.includes(interest.value);
+    return (
+      <TouchableOpacity
+        key={interest.value}
+        style={[
+          styles.interestButton,
+          isSelected && styles.selectedInterest
+        ]}
+        onPress={() => toggleInterest(interest.value)}
+      >
+        <Ionicons 
+          name={interest.icon} 
+          size={20} 
+          color={isSelected ? '#FFFFFF' : '#666666'} 
+          style={styles.interestIcon}
+        />
+        <Text style={[
+          styles.interestText,
+          isSelected && styles.selectedInterestText
+        ]}>
+          {interest.label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `${16.7}%` }]} />
+          <View style={[styles.progress, { width: `${75}%` }]} />
         </View>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>
@@ -70,25 +86,12 @@ const FamilyScreen = ({ navigation }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Family</Text>
+        <Text style={styles.title}>Select Interests/Hobbies</Text>
+        <Text style={styles.subtitle}>Add hobbies to match with similar people.</Text>
 
         <View style={styles.formContainer}>
-          {/* Children Section */}
-          <Text style={styles.sectionTitle}>Do you have Children?</Text>
-          
-          <View style={styles.optionsContainer}>
-            {childrenOptions.map(option => 
-              renderOption(option, hasChildren, setHasChildren)
-            )}
-          </View>
-
-          {/* Family Plans Section */}
-          <Text style={styles.sectionTitle}>What are family plans?</Text>
-          
-          <View style={styles.optionsContainer}>
-            {familyPlansOptions.map(option => 
-              renderOption(option, familyPlans, setFamilyPlans)
-            )}
+          <View style={styles.interestsGrid}>
+            {interestOptions.map((interest) => renderInterest(interest))}
           </View>
 
           <Text style={styles.disclaimer}>
@@ -158,41 +161,51 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '600',
     color: '#333333',
-    marginBottom: 40,
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666666',
+    marginBottom: 30,
+    lineHeight: 22,
   },
   formContainer: {
     flex: 1,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333333',
-    marginBottom: 20,
-    marginTop: 20,
-  },
-  optionsContainer: {
+  interestsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     marginBottom: 30,
   },
-  optionButton: {
+  interestButton: {
     backgroundColor: '#FFFFFF',
     borderRadius: 25,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     marginVertical: 6,
     borderWidth: 1,
     borderColor: '#E0E0E0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    minWidth: '30%',
+    maxWidth: '48%',
   },
-  selectedOption: {
-    backgroundColor: '#E8F2FF',
+  selectedInterest: {
+    backgroundColor: '#1B5EBD',
     borderColor: '#1B5EBD',
   },
-  optionText: {
-    fontSize: 16,
+  interestIcon: {
+    marginRight: 8,
+  },
+  interestText: {
+    fontSize: 14,
     color: '#666666',
     fontWeight: '500',
+    flex: 1,
   },
-  selectedOptionText: {
-    color: '#1B5EBD',
+  selectedInterestText: {
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   disclaimer: {
@@ -230,4 +243,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FamilyScreen;
+export default InterestsScreen;

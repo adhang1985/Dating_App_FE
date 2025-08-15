@@ -33,9 +33,8 @@ const IdealRelationshipScreen = ({ navigation }) => {
   };
 
   const handleNext = () => {
-    // Profile setup complete, navigate to main app
-    console.log('Profile setup complete! Profile created successfully');
-    navigation.navigate('Welcome');
+    console.log('Ideal relationship setup complete, proceeding to written prompts');
+    navigation.navigate('WrittenPrompts');
   };
 
   const handleBack = () => {
@@ -43,7 +42,7 @@ const IdealRelationshipScreen = ({ navigation }) => {
   };
 
   const handleSkip = () => {
-    navigation.navigate('Welcome');
+    navigation.navigate('WrittenPrompts');
   };
 
   const renderOption = (option) => (
@@ -75,7 +74,7 @@ const IdealRelationshipScreen = ({ navigation }) => {
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `100%` }]} />
+          <View style={[styles.progress, { width: `95%` }]} />
         </View>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>

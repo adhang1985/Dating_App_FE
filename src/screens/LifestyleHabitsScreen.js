@@ -90,7 +90,7 @@ const LifestyleHabitsScreen = ({ navigation }) => {
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `95%` }]} />
+          <View style={[styles.progress, { width: `92%` }]} />
         </View>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>

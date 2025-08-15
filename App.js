@@ -39,6 +39,10 @@ import LanguagesSpokenScreen from './src/screens/LanguagesSpokenScreen';
 import DatingIntentionsScreen from './src/screens/DatingIntentionsScreen';
 import LifestyleHabitsScreen from './src/screens/LifestyleHabitsScreen';
 import IdealRelationshipScreen from './src/screens/IdealRelationshipScreen';
+import WrittenPromptsScreen from './src/screens/WrittenPromptsScreen';
+import VoicePromptScreen from './src/screens/VoicePromptScreen';
+import VideoPromptScreen from './src/screens/VideoPromptScreen';
+import PromptPollScreen from './src/screens/PromptPollScreen';
 
 const Stack = createStackNavigator();
 
@@ -90,6 +94,10 @@ export default function App() {
         <Stack.Screen name="DatingIntentions" component={DatingIntentionsScreen} />
         <Stack.Screen name="LifestyleHabits" component={LifestyleHabitsScreen} />
         <Stack.Screen name="IdealRelationship" component={IdealRelationshipScreen} />
+        <Stack.Screen name="WrittenPrompts" component={WrittenPromptsScreen} />
+        <Stack.Screen name="VoicePrompt" component={VoicePromptScreen} />
+        <Stack.Screen name="VideoPrompt" component={VideoPromptScreen} />
+        <Stack.Screen name="PromptPoll" component={PromptPollScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

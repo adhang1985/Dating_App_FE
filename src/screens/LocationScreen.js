@@ -27,7 +27,7 @@ const LocationScreen = ({ navigation }) => {
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `${33.3}%` }]} />
+          <View style={[styles.progress, { width: `20%` }]} />
         </View>
       </View>
 
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: '600',
+    fontWeight: 'normal',
     color: '#333333',
     marginBottom: 10,
   },

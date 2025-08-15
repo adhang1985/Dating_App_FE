@@ -6,22 +6,32 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const PetsScreen = ({ navigation }) => {
-  const [selectedPet, setSelectedPet] = useState('');
 
-  const petOptions = [
-    { value: 'dog', label: 'Yes, I have a dog' },
-    { value: 'cat', label: 'Yes, I have a cat' },
-    { value: 'other', label: 'Yes, I have other pets' },
-    { value: 'like', label: 'No, but I like pets' },
-    { value: 'prefer-not', label: 'No, and I prefer not to be around pets' },
+const { width } = Dimensions.get('window');
+
+const DatingIntentionsScreen = ({ navigation }) => {
+  const [selectedIntention, setSelectedIntention] = useState('');
+
+  const intentionOptions = [
+    { value: 'casual', label: 'Casual Dating' },
+    { value: 'long-term', label: 'Long-term Relationship' },
+    { value: 'friends', label: 'Looking for Friends' },
+    { value: 'serious', label: 'Serious Relationship / Marriage' },
+    { value: 'open', label: 'Open to Anything' },
+    { value: 'exploring', label: 'Just Exploring' },
+    { value: 'prefer-not-say', label: 'Prefer not to say' },
   ];
 
+  const selectIntention = (value) => {
+    setSelectedIntention(value);
+  };
+
   const handleNext = () => {
-    navigation.navigate('Interests');
+    navigation.navigate('LifestyleHabits');
   };
 
   const handleBack = () => {
@@ -29,7 +39,7 @@ const PetsScreen = ({ navigation }) => {
   };
 
   const handleSkip = () => {
-    navigation.navigate('Interests');
+    navigation.navigate('LifestyleHabits');
   };
 
   const renderOption = (option) => (
@@ -37,21 +47,21 @@ const PetsScreen = ({ navigation }) => {
       key={option.value}
       style={[
         styles.optionContainer,
-        selectedPet === option.value && styles.selectedOption
+        selectedIntention === option.value && styles.selectedOption
       ]}
-      onPress={() => setSelectedPet(option.value)}
+      onPress={() => selectIntention(option.value)}
     >
       <Text style={[
         styles.optionText,
-        selectedPet === option.value && styles.selectedOptionText
+        selectedIntention === option.value && styles.selectedOptionText
       ]}>
         {option.label}
       </Text>
       <View style={[
         styles.radioButton,
-        selectedPet === option.value && styles.selectedRadio
+        selectedIntention === option.value && styles.selectedRadio
       ]}>
-        {selectedPet === option.value && <View style={styles.radioInner} />}
+        {selectedIntention === option.value && <View style={styles.radioInner} />}
       </View>
     </TouchableOpacity>
   );
@@ -61,7 +71,7 @@ const PetsScreen = ({ navigation }) => {
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `40%` }]} />
+          <View style={[styles.progress, { width: `90%` }]} />
         </View>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>
@@ -69,17 +79,15 @@ const PetsScreen = ({ navigation }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Do You Have Any Pets?</Text>
+        <Text style={styles.title}>Your dating intentions</Text>
 
-        <View style={styles.formContainer}>
-          <View style={styles.optionsContainer}>
-            {petOptions.map(option => renderOption(option))}
-          </View>
-
-          <Text style={styles.disclaimer}>
-            This detail will appear on your public profile.
-          </Text>
+        <View style={styles.optionsContainer}>
+          {intentionOptions.map(renderOption)}
         </View>
+
+        <Text style={styles.disclaimer}>
+          This detail will appear on your public profile.
+        </Text>
       </ScrollView>
 
       {/* Navigation Controls */}
@@ -87,7 +95,6 @@ const PetsScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.navButton} onPress={handleBack}>
           <Ionicons name="chevron-back" size={24} color="#333" />
         </TouchableOpacity>
-        
         <TouchableOpacity 
           style={[styles.navButton, styles.nextButton]} 
           onPress={handleNext}
@@ -105,20 +112,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   progressContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 25,
     paddingTop: 80,
     paddingBottom: 0,
     backgroundColor: '#F5F5F5',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   progressBar: {
     flex: 1,
     height: 6,
     backgroundColor: '#E0E0E0',
     borderRadius: 3,
-    marginRight: 20,
+    marginRight: 15,
   },
   progress: {
     height: '100%',
@@ -130,14 +137,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   skipText: {
-    fontSize: 16,
     color: '#666666',
+    fontSize: 16,
     fontWeight: '500',
   },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 25,
     paddingTop: 30,
+    paddingBottom: 20,
   },
   title: {
     fontSize: 32,
@@ -145,28 +153,18 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 40,
   },
-  formContainer: {
-    flex: 1,
-  },
   optionsContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    overflow: 'hidden',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    marginBottom: 30,
+    marginBottom: 40,
   },
   optionContainer: {
-    paddingVertical: 15,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginBottom: 1,
+    paddingVertical: 20,
     paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
   },
   selectedOption: {
     backgroundColor: '#F0F7FF',
@@ -201,16 +199,15 @@ const styles = StyleSheet.create({
   disclaimer: {
     fontSize: 14,
     color: '#999999',
-    textAlign: 'left',
+    textAlign: 'center',
     marginTop: 20,
-    lineHeight: 20,
   },
   navigationContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 30,
-    paddingVertical: 20,
-    paddingBottom: 40,
+    paddingVertical: 15,
+    paddingBottom: 30,
   },
   navButton: {
     width: 50,
@@ -233,4 +230,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PetsScreen;
+export default DatingIntentionsScreen;

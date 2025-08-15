@@ -78,7 +78,7 @@ const InterestsScreen = ({ navigation }) => {
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `${75}%` }]} />
+          <View style={[styles.progress, { width: `45%` }]} />
         </View>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: '600',
+    fontWeight: 'normal',
     color: '#333333',
     marginBottom: 10,
   },

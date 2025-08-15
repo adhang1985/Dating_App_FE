@@ -31,6 +31,14 @@ import LocationScreen from './src/screens/LocationScreen';
 import ProfessionScreen from './src/screens/ProfessionScreen';
 import EducationLevelScreen from './src/screens/EducationLevelScreen';
 import EthnicityScreen from './src/screens/EthnicityScreen';
+import LookingToMeetScreen from './src/screens/LookingToMeetScreen';
+import ReligiousAffiliationScreen from './src/screens/ReligiousAffiliationScreen';
+import WhereDidYouGrowUpScreen from './src/screens/WhereDidYouGrowUpScreen';
+import PoliticalAffiliationScreen from './src/screens/PoliticalAffiliationScreen';
+import LanguagesSpokenScreen from './src/screens/LanguagesSpokenScreen';
+import DatingIntentionsScreen from './src/screens/DatingIntentionsScreen';
+import LifestyleHabitsScreen from './src/screens/LifestyleHabitsScreen';
+import IdealRelationshipScreen from './src/screens/IdealRelationshipScreen';
 
 const Stack = createStackNavigator();
 
@@ -72,6 +80,16 @@ export default function App() {
         <Stack.Screen name="Profession" component={ProfessionScreen} />
         <Stack.Screen name="EducationLevel" component={EducationLevelScreen} />
         <Stack.Screen name="Ethnicity" component={EthnicityScreen} />
+        
+        {/* Additional Profile Setup Screens */}
+        <Stack.Screen name="LookingToMeet" component={LookingToMeetScreen} />
+        <Stack.Screen name="ReligiousAffiliation" component={ReligiousAffiliationScreen} />
+        <Stack.Screen name="WhereDidYouGrowUp" component={WhereDidYouGrowUpScreen} />
+        <Stack.Screen name="PoliticalAffiliation" component={PoliticalAffiliationScreen} />
+        <Stack.Screen name="LanguagesSpoken" component={LanguagesSpokenScreen} />
+        <Stack.Screen name="DatingIntentions" component={DatingIntentionsScreen} />
+        <Stack.Screen name="LifestyleHabits" component={LifestyleHabitsScreen} />
+        <Stack.Screen name="IdealRelationship" component={IdealRelationshipScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

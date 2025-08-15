@@ -41,7 +41,7 @@ const EducationLevelScreen = ({ navigation }) => {
     <TouchableOpacity
       key={option.value}
       style={[
-        styles.optionButton,
+        styles.optionContainer,
         selectedLevel === option.value && styles.selectedOption
       ]}
       onPress={() => setSelectedLevel(option.value)}
@@ -52,6 +52,12 @@ const EducationLevelScreen = ({ navigation }) => {
       ]}>
         {option.label}
       </Text>
+      <View style={[
+        styles.radioButton,
+        selectedLevel === option.value && styles.selectedRadio
+      ]}>
+        {selectedLevel === option.value && <View style={styles.radioInner} />}
+      </View>
     </TouchableOpacity>
   );
 
@@ -60,7 +66,7 @@ const EducationLevelScreen = ({ navigation }) => {
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `${50}%` }]} />
+          <View style={[styles.progress, { width: `30%` }]} />
         </View>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>
@@ -73,25 +79,25 @@ const EducationLevelScreen = ({ navigation }) => {
         <View style={styles.formContainer}>
           <View style={styles.optionsContainer}>
             {educationLevels.map(option => renderOption(option))}
-            
-            {/* Other option with text input */}
-            <View style={styles.otherContainer}>
-              <TextInput
-                style={[
-                  styles.otherInput,
-                  selectedLevel === 'other' && styles.selectedOtherInput
-                ]}
-                placeholder="Other"
-                placeholderTextColor="#999999"
-                value={otherText}
-                onChangeText={(text) => {
-                  setOtherText(text);
-                  setSelectedLevel('other');
-                }}
-                onFocus={() => setSelectedLevel('other')}
-              />
-              <Text style={styles.characterCount}>0/50</Text>
-            </View>
+          </View>
+          
+          {/* Other option with text input - outside radio buttons */}
+          <View style={styles.otherContainer}>
+            <TextInput
+              style={[
+                styles.otherInput,
+                selectedLevel === 'other' && styles.selectedOtherInput
+              ]}
+              placeholder="Other"
+              placeholderTextColor="#999999"
+              value={otherText}
+              onChangeText={(text) => {
+                setOtherText(text);
+                setSelectedLevel('other');
+              }}
+              onFocus={() => setSelectedLevel('other')}
+            />
+            <Text style={styles.characterCount}>0/50</Text>
           </View>
 
           <Text style={styles.disclaimer}>
@@ -159,7 +165,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: '600',
+    fontWeight: 'normal',
     color: '#333333',
     marginBottom: 40,
   },
@@ -167,29 +173,54 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   optionsContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    overflow: 'hidden',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
     marginBottom: 30,
   },
-  optionButton: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 25,
-    paddingVertical: 16,
+  optionContainer: {
+    paddingVertical: 15,
     paddingHorizontal: 20,
-    marginVertical: 6,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
   selectedOption: {
-    backgroundColor: '#E8F2FF',
-    borderColor: '#1B5EBD',
+    backgroundColor: '#F0F7FF',
   },
   optionText: {
     fontSize: 16,
-    color: '#666666',
-    fontWeight: '500',
+    color: '#333333',
+    flex: 1,
   },
   selectedOptionText: {
-    color: '#1B5EBD',
-    fontWeight: '600',
+    color: '#333333',
+    fontWeight: '500',
+  },
+  radioButton: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedRadio: {
+    borderColor: '#1B5EBD',
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#1B5EBD',
   },
   otherContainer: {
     position: 'relative',

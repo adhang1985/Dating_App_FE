@@ -6,22 +6,44 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const PetsScreen = ({ navigation }) => {
-  const [selectedPet, setSelectedPet] = useState('');
 
-  const petOptions = [
-    { value: 'dog', label: 'Yes, I have a dog' },
-    { value: 'cat', label: 'Yes, I have a cat' },
-    { value: 'other', label: 'Yes, I have other pets' },
-    { value: 'like', label: 'No, but I like pets' },
-    { value: 'prefer-not', label: 'No, and I prefer not to be around pets' },
+const { width } = Dimensions.get('window');
+
+const LifestyleHabitsScreen = ({ navigation }) => {
+  const [smokingAnswer, setSmokingAnswer] = useState('');
+  const [drinkingAnswer, setDrinkingAnswer] = useState('');
+  const [weedAnswer, setWeedAnswer] = useState('');
+
+  const smokingOptions = [
+    { value: 'yes-regularly', label: 'Yes, regularly' },
+    { value: 'occasionally', label: 'Occasionally / Socially' },
+    { value: 'no-used-to', label: 'No, but I used to' },
+    { value: 'no-never', label: 'No, never' },
+    { value: 'prefer-not-say', label: 'Prefer not to say' },
+  ];
+
+  const drinkingOptions = [
+    { value: 'yes-regularly', label: 'Yes, regularly' },
+    { value: 'occasionally', label: 'Occasionally / Socially' },
+    { value: 'no-used-to', label: 'No, but I used to' },
+    { value: 'no-never', label: 'No, never' },
+    { value: 'prefer-not-say', label: 'Prefer not to say' },
+  ];
+
+  const weedOptions = [
+    { value: 'yes-regularly', label: 'Yes, regularly' },
+    { value: 'occasionally', label: 'Occasionally / Socially' },
+    { value: 'no-used-to', label: 'No, but I used to' },
+    { value: 'no-never', label: 'No, never' },
+    { value: 'prefer-not-say', label: 'Prefer not to say' },
   ];
 
   const handleNext = () => {
-    navigation.navigate('Interests');
+    navigation.navigate('IdealRelationship');
   };
 
   const handleBack = () => {
@@ -29,31 +51,38 @@ const PetsScreen = ({ navigation }) => {
   };
 
   const handleSkip = () => {
-    navigation.navigate('Interests');
+    navigation.navigate('IdealRelationship');
   };
 
-  const renderOption = (option) => (
-    <TouchableOpacity
-      key={option.value}
-      style={[
-        styles.optionContainer,
-        selectedPet === option.value && styles.selectedOption
-      ]}
-      onPress={() => setSelectedPet(option.value)}
-    >
-      <Text style={[
-        styles.optionText,
-        selectedPet === option.value && styles.selectedOptionText
-      ]}>
-        {option.label}
-      </Text>
-      <View style={[
-        styles.radioButton,
-        selectedPet === option.value && styles.selectedRadio
-      ]}>
-        {selectedPet === option.value && <View style={styles.radioInner} />}
+  const renderQuestionOptions = (question, options, selectedValue, setValue) => (
+    <View style={styles.questionContainer}>
+      <Text style={styles.questionTitle}>{question}</Text>
+      <View style={styles.optionsContainer}>
+        {options.map((option) => (
+          <TouchableOpacity
+            key={option.value}
+            style={[
+              styles.optionContainer,
+              selectedValue === option.value && styles.selectedOption
+            ]}
+            onPress={() => setValue(option.value)}
+          >
+            <Text style={[
+              styles.optionText,
+              selectedValue === option.value && styles.selectedOptionText
+            ]}>
+              {option.label}
+            </Text>
+            <View style={[
+              styles.radioButton,
+              selectedValue === option.value && styles.selectedRadio
+            ]}>
+              {selectedValue === option.value && <View style={styles.radioInner} />}
+            </View>
+          </TouchableOpacity>
+        ))}
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -61,7 +90,7 @@ const PetsScreen = ({ navigation }) => {
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `40%` }]} />
+          <View style={[styles.progress, { width: `95%` }]} />
         </View>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>
@@ -69,17 +98,13 @@ const PetsScreen = ({ navigation }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Do You Have Any Pets?</Text>
+        <Text style={styles.title}>Lifestyle habits</Text>
 
-        <View style={styles.formContainer}>
-          <View style={styles.optionsContainer}>
-            {petOptions.map(option => renderOption(option))}
-          </View>
-
-          <Text style={styles.disclaimer}>
-            This detail will appear on your public profile.
-          </Text>
-        </View>
+        {renderQuestionOptions('Do you smoke tobacco?', smokingOptions, smokingAnswer, setSmokingAnswer)}
+        
+        {renderQuestionOptions('Do you drink alcohol?', drinkingOptions, drinkingAnswer, setDrinkingAnswer)}
+        
+        {renderQuestionOptions('Do you smoke weed?', weedOptions, weedAnswer, setWeedAnswer)}
       </ScrollView>
 
       {/* Navigation Controls */}
@@ -87,7 +112,6 @@ const PetsScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.navButton} onPress={handleBack}>
           <Ionicons name="chevron-back" size={24} color="#333" />
         </TouchableOpacity>
-        
         <TouchableOpacity 
           style={[styles.navButton, styles.nextButton]} 
           onPress={handleNext}
@@ -105,20 +129,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   progressContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 25,
     paddingTop: 80,
     paddingBottom: 0,
     backgroundColor: '#F5F5F5',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   progressBar: {
     flex: 1,
     height: 6,
     backgroundColor: '#E0E0E0',
     borderRadius: 3,
-    marginRight: 20,
+    marginRight: 15,
   },
   progress: {
     height: '100%',
@@ -130,23 +154,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   skipText: {
-    fontSize: 16,
     color: '#666666',
+    fontSize: 16,
     fontWeight: '500',
   },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 25,
     paddingTop: 30,
+    paddingBottom: 20,
   },
   title: {
     fontSize: 32,
     fontWeight: 'normal',
     color: '#333333',
-    marginBottom: 40,
+    marginBottom: 30,
   },
-  formContainer: {
-    flex: 1,
+  questionContainer: {
+    marginBottom: 30,
+  },
+  questionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 15,
   },
   optionsContainer: {
     backgroundColor: '#FFFFFF',
@@ -157,7 +188,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    marginBottom: 30,
   },
   optionContainer: {
     paddingVertical: 15,
@@ -198,19 +228,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#1B5EBD',
   },
-  disclaimer: {
-    fontSize: 14,
-    color: '#999999',
-    textAlign: 'left',
-    marginTop: 20,
-    lineHeight: 20,
-  },
   navigationContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 30,
-    paddingVertical: 20,
-    paddingBottom: 40,
+    paddingVertical: 15,
+    paddingBottom: 30,
   },
   navButton: {
     width: 50,
@@ -233,4 +256,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PetsScreen;
+export default LifestyleHabitsScreen;

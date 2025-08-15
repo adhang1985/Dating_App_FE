@@ -64,7 +64,7 @@ const ProfileSetupScreen = ({ navigation }) => {
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `${8.3}%` }]} />
+          <View style={[styles.progress, { width: `5%` }]} />
         </View>
       </View>
 

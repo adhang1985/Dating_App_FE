@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,32 +6,38 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CustomInput from '../components/CustomInput';
 
-const ProfessionScreen = ({ navigation }) => {
-  const [workplace, setWorkplace] = useState('');
-  const [role, setRole] = useState('');
+const { width } = Dimensions.get('window');
 
-  const handleNext = () => {
-    navigation.navigate('EducationLevel');
-  };
+const WhereDidYouGrowUpScreen = ({ navigation }) => {
+  const [hometown, setHometown] = useState('');
 
-  const handleBack = () => {
+  const handleNext = useCallback(() => {
+    navigation.navigate('PoliticalAffiliation');
+  }, [navigation]);
+
+  const handleBack = useCallback(() => {
     navigation.goBack();
-  };
+  }, [navigation]);
 
-  const handleSkip = () => {
-    navigation.navigate('EducationLevel');
-  };
+  const handleSkip = useCallback(() => {
+    navigation.navigate('PoliticalAffiliation');
+  }, [navigation]);
+
+  const handleHometownChange = useCallback((text) => {
+    setHometown(text);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `25%` }]} />
+          <View style={[styles.progress, { width: `75%` }]} />
         </View>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>
@@ -39,33 +45,20 @@ const ProfessionScreen = ({ navigation }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Profession</Text>
+        <Text style={styles.title}>Where did you grow up?</Text>
 
-        <View style={styles.formContainer}>
-          {/* Workplace Section */}
-          <Text style={styles.sectionTitle}>What is your workplace?</Text>
-          
+        <View style={styles.inputContainer}>
           <CustomInput
-            placeholder="Name of Workplace"
-            value={workplace}
-            onChangeText={setWorkplace}
+            placeholder="Hometown"
+            value={hometown}
+            onChangeText={handleHometownChange}
             style={styles.input}
           />
-
-          {/* Role Section */}
-          <Text style={styles.sectionTitle}>Your role at work</Text>
-          
-          <CustomInput
-            placeholder="Your role or position"
-            value={role}
-            onChangeText={setRole}
-            style={styles.input}
-          />
-
-          <Text style={styles.disclaimer}>
-            This detail will appear on your public profile.
-          </Text>
         </View>
+
+        <Text style={styles.disclaimer}>
+          This detail will appear on your public profile.
+        </Text>
       </ScrollView>
 
       {/* Navigation Controls */}
@@ -73,11 +66,7 @@ const ProfessionScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.navButton} onPress={handleBack}>
           <Ionicons name="chevron-back" size={24} color="#333" />
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.navButton, styles.nextButton]} 
-          onPress={handleNext}
-        >
+        <TouchableOpacity style={[styles.navButton, styles.nextButton]} onPress={handleNext}>
           <Ionicons name="chevron-forward" size={24} color="#333" />
         </TouchableOpacity>
       </View>
@@ -91,20 +80,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   progressContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 25,
     paddingTop: 80,
     paddingBottom: 0,
     backgroundColor: '#F5F5F5',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   progressBar: {
     flex: 1,
     height: 6,
     backgroundColor: '#E0E0E0',
     borderRadius: 3,
-    marginRight: 20,
+    marginRight: 15,
   },
   progress: {
     height: '100%',
@@ -116,14 +105,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   skipText: {
-    fontSize: 16,
     color: '#666666',
+    fontSize: 16,
     fontWeight: '500',
   },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 25,
     paddingTop: 30,
+    paddingBottom: 20,
   },
   title: {
     fontSize: 32,
@@ -131,25 +121,17 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 40,
   },
-  formContainer: {
-    flex: 1,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333333',
-    marginBottom: 20,
-    marginTop: 20,
+  inputContainer: {
+    marginBottom: 40,
   },
   input: {
-    marginVertical: 8,
+    marginBottom: 20,
   },
   disclaimer: {
     fontSize: 14,
     color: '#999999',
-    textAlign: 'left',
-    marginTop: 30,
-    lineHeight: 20,
+    textAlign: 'center',
+    marginTop: 100,
   },
   navigationContainer: {
     flexDirection: 'row',
@@ -179,4 +161,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfessionScreen;
+export default WhereDidYouGrowUpScreen;

@@ -7,50 +7,119 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Alert
+  Alert,
+  Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 
 const PhotoUploadScreen = ({ navigation }) => {
   const [photos, setPhotos] = useState([null, null, null, null, null]);
   const [mainPhoto, setMainPhoto] = useState(null);
 
-  // Mock photos for demo
-  const mockPhotos = [
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1566492031773-4f4e44671d66?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face'
-  ];
+  // Request permissions for camera and media library
+  const requestPermissions = async () => {
+    if (Platform.OS !== 'web') {
+      const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+      const { status: mediaLibraryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (cameraStatus !== 'granted' || mediaLibraryStatus !== 'granted') {
+        Alert.alert(
+          'Permissions Required',
+          'Please grant camera and photo library permissions to upload photos.',
+          [{ text: 'OK' }]
+        );
+        return false;
+      }
+    }
+    return true;
+  };
 
-  const handlePhotoPress = (index, isMain = false) => {
+  const handlePhotoPress = async (index, isMain = false) => {
+    const hasPermissions = await requestPermissions();
+    if (!hasPermissions) return;
+
     Alert.alert(
       'Add Photo',
       'Choose photo source',
       [
-        { text: 'Camera', onPress: () => addMockPhoto(index, isMain) },
-        { text: 'Gallery', onPress: () => addMockPhoto(index, isMain) },
+        { text: 'Camera', onPress: () => takePhoto(index, isMain) },
+        { text: 'Gallery', onPress: () => pickImage(index, isMain) },
         { text: 'Cancel', style: 'cancel' }
       ]
     );
   };
 
-  const addMockPhoto = (index, isMain = false) => {
-    const availablePhotos = mockPhotos.filter(photo => 
-      photo !== mainPhoto && !photos.includes(photo)
-    );
-    
-    if (availablePhotos.length > 0) {
-      const randomPhoto = availablePhotos[Math.floor(Math.random() * availablePhotos.length)];
-      
-      if (isMain) {
-        setMainPhoto(randomPhoto);
-      } else {
-        const newPhotos = [...photos];
-        newPhotos[index] = randomPhoto;
-        setPhotos(newPhotos);
+  const takePhoto = async (index, isMain = false) => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const photoUri = result.assets[0].uri;
+        setPhoto(index, isMain, photoUri);
       }
+    } catch (error) {
+      console.error('Camera error:', error);
+      Alert.alert('Error', 'Failed to take photo. Please try again.');
+    }
+  };
+
+  const pickImage = async (index, isMain = false) => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const photoUri = result.assets[0].uri;
+        setPhoto(index, isMain, photoUri);
+      }
+    } catch (error) {
+      console.error('Gallery error:', error);
+      Alert.alert('Error', 'Failed to select photo. Please try again.');
+    }
+  };
+
+  const setPhoto = (index, isMain, photoUri) => {
+    if (isMain) {
+      setMainPhoto(photoUri);
+      console.log('Main photo set:', photoUri);
+    } else {
+      const newPhotos = [...photos];
+      newPhotos[index] = photoUri;
+      setPhotos(newPhotos);
+      console.log(`Photo ${index} set:`, photoUri);
+    }
+  };
+
+  const handleEditPhoto = async (index, isMain = false) => {
+    Alert.alert(
+      'Edit Photo',
+      'What would you like to do?',
+      [
+        { text: 'Replace with Camera', onPress: () => takePhoto(index, isMain) },
+        { text: 'Replace with Gallery', onPress: () => pickImage(index, isMain) },
+        { text: 'Remove Photo', onPress: () => removePhoto(index, isMain), style: 'destructive' },
+        { text: 'Cancel', style: 'cancel' }
+      ]
+    );
+  };
+
+  const removePhoto = (index, isMain = false) => {
+    if (isMain) {
+      setMainPhoto(null);
+    } else {
+      const newPhotos = [...photos];
+      newPhotos[index] = null;
+      setPhotos(newPhotos);
     }
   };
 
@@ -59,7 +128,18 @@ const PhotoUploadScreen = ({ navigation }) => {
       Alert.alert('Photo Required', 'Please add at least your main photo to continue.');
       return;
     }
-    navigation.navigate('AddPrompt', { mainPhoto, photos: photos.filter(p => p) });
+
+    const validPhotos = photos.filter(p => p);
+    console.log('Proceeding to next screen with:');
+    console.log('Main photo:', mainPhoto);
+    console.log('Additional photos:', validPhotos);
+    console.log('Total photos:', validPhotos.length + 1);
+
+    navigation.navigate('AddPrompt', { 
+      mainPhoto, 
+      photos: validPhotos,
+      totalPhotos: validPhotos.length + 1
+    });
   };
 
   const handleBack = () => {
@@ -108,7 +188,7 @@ const PhotoUploadScreen = ({ navigation }) => {
           {/* Main Photo Container */}
           <View style={styles.mainPhotoWrapper}>
             <PhotoPlaceholder 
-              onPress={() => handlePhotoPress(0, true)}
+              onPress={() => mainPhoto ? handleEditPhoto(0, true) : handlePhotoPress(0, true)}
               photo={mainPhoto}
               size="large"
               showEdit={!!mainPhoto}
@@ -118,12 +198,12 @@ const PhotoUploadScreen = ({ navigation }) => {
           {/* Side Photos Grid */}
           <View style={styles.sidePhotosGrid}>
             <PhotoPlaceholder 
-              onPress={() => handlePhotoPress(0)}
+              onPress={() => photos[0] ? handleEditPhoto(0) : handlePhotoPress(0)}
               photo={photos[0]}
               size="small"
             />
             <PhotoPlaceholder 
-              onPress={() => handlePhotoPress(1)}
+              onPress={() => photos[1] ? handleEditPhoto(1) : handlePhotoPress(1)}
               photo={photos[1]}
               size="small"
             />
@@ -133,17 +213,17 @@ const PhotoUploadScreen = ({ navigation }) => {
         {/* Bottom Photos Row */}
         <View style={styles.bottomPhotosRow}>
           <PhotoPlaceholder 
-            onPress={() => handlePhotoPress(2)}
+            onPress={() => photos[2] ? handleEditPhoto(2) : handlePhotoPress(2)}
             photo={photos[2]}
             size="small"
           />
           <PhotoPlaceholder 
-            onPress={() => handlePhotoPress(3)}
+            onPress={() => photos[3] ? handleEditPhoto(3) : handlePhotoPress(3)}
             photo={photos[3]}
             size="small"
           />
           <PhotoPlaceholder 
-            onPress={() => handlePhotoPress(4)}
+            onPress={() => photos[4] ? handleEditPhoto(4) : handlePhotoPress(4)}
             photo={photos[4]}
             size="small"
           />

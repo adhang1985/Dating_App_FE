@@ -20,8 +20,8 @@ const PromptPollScreen = ({ navigation }) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const handleNext = useCallback(() => {
-    console.log('Profile setup complete! Profile created successfully');
-    navigation.navigate('Welcome');
+    console.log('Profile setup complete! Proceeding to discovery');
+    navigation.navigate('Discovery');
   }, [navigation]);
 
   const handleBack = useCallback(() => {
@@ -29,8 +29,8 @@ const PromptPollScreen = ({ navigation }) => {
   }, [navigation]);
 
   const handleSkip = useCallback(() => {
-    console.log('Profile setup complete! Profile created successfully');
-    navigation.navigate('Welcome');
+    console.log('Profile setup complete! Proceeding to discovery');
+    navigation.navigate('Discovery');
   }, [navigation]);
 
   const handleSelectPrompt = useCallback(() => {

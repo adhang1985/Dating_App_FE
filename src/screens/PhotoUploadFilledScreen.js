@@ -7,40 +7,59 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Alert
+  Alert,
+  Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 
 const PhotoUploadFilledScreen = ({ navigation, route }) => {
   const { mainPhoto, photos = [], prompt, location, caption } = route.params || {};
   
-  // Initialize with some photos filled and some empty
-  const [filledPhotos, setFilledPhotos] = useState([
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1566492031773-4f4e44671d66?w=400&h=400&fit=crop&crop=face',
-    null,
-    null,
-    null
-  ]);
+  // Initialize with photos from previous screen or mock data as fallback
+  const [filledPhotos, setFilledPhotos] = useState(() => {
+    const initialPhotos = [null, null, null, null, null];
+    photos.forEach((photo, index) => {
+      if (index < 5) initialPhotos[index] = photo;
+    });
+    // Add some mock photos if none provided
+    if (!photos.length) {
+      initialPhotos[0] = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face';
+      initialPhotos[1] = 'https://images.unsplash.com/photo-1566492031773-4f4e44671d66?w=400&h=400&fit=crop&crop=face';
+    }
+    return initialPhotos;
+  });
 
   const [mainPhotoState, setMainPhotoState] = useState(
     mainPhoto || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face'
   );
 
-  // Additional mock photos
-  const additionalMockPhotos = [
-    'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1463453091185-61582044d556?w=400&h=400&fit=crop&crop=face'
-  ];
+  // Request permissions for camera and media library
+  const requestPermissions = async () => {
+    if (Platform.OS !== 'web') {
+      const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+      const { status: mediaLibraryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (cameraStatus !== 'granted' || mediaLibraryStatus !== 'granted') {
+        Alert.alert(
+          'Permissions Required',
+          'Please grant camera and photo library permissions to upload photos.',
+          [{ text: 'OK' }]
+        );
+        return false;
+      }
+    }
+    return true;
+  };
 
-  const handlePhotoPress = (index, isMain = false) => {
+  const handlePhotoPress = async (index, isMain = false) => {
     if (isMain || filledPhotos[index]) {
       Alert.alert(
         'Edit Photo',
         'What would you like to do?',
         [
-          { text: 'Replace', onPress: () => replacePhoto(index, isMain) },
+          { text: 'Replace with Camera', onPress: () => takePhoto(index, isMain) },
+          { text: 'Replace with Gallery', onPress: () => pickImage(index, isMain) },
           { text: 'Remove', onPress: () => removePhoto(index, isMain), style: 'destructive' },
           { text: 'Cancel', style: 'cancel' }
         ]
@@ -50,30 +69,68 @@ const PhotoUploadFilledScreen = ({ navigation, route }) => {
     }
   };
 
-  const addPhoto = (index) => {
-    const availablePhotos = additionalMockPhotos.filter(photo => 
-      photo !== mainPhotoState && !filledPhotos.includes(photo)
+  const addPhoto = async (index) => {
+    const hasPermissions = await requestPermissions();
+    if (!hasPermissions) return;
+
+    Alert.alert(
+      'Add Photo',
+      'Choose photo source',
+      [
+        { text: 'Camera', onPress: () => takePhoto(index, false) },
+        { text: 'Gallery', onPress: () => pickImage(index, false) },
+        { text: 'Cancel', style: 'cancel' }
+      ]
     );
-    
-    if (availablePhotos.length > 0) {
-      const randomPhoto = availablePhotos[Math.floor(Math.random() * availablePhotos.length)];
-      const newPhotos = [...filledPhotos];
-      newPhotos[index] = randomPhoto;
-      setFilledPhotos(newPhotos);
+  };
+
+  const takePhoto = async (index, isMain = false) => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const photoUri = result.assets[0].uri;
+        setPhoto(index, isMain, photoUri);
+      }
+    } catch (error) {
+      console.error('Camera error:', error);
+      Alert.alert('Error', 'Failed to take photo. Please try again.');
     }
   };
 
-  const replacePhoto = (index, isMain = false) => {
-    if (isMain) {
-      const availablePhotos = additionalMockPhotos.filter(photo => 
-        !filledPhotos.includes(photo)
-      );
-      if (availablePhotos.length > 0) {
-        const randomPhoto = availablePhotos[Math.floor(Math.random() * availablePhotos.length)];
-        setMainPhotoState(randomPhoto);
+  const pickImage = async (index, isMain = false) => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const photoUri = result.assets[0].uri;
+        setPhoto(index, isMain, photoUri);
       }
+    } catch (error) {
+      console.error('Gallery error:', error);
+      Alert.alert('Error', 'Failed to select photo. Please try again.');
+    }
+  };
+
+  const setPhoto = (index, isMain, photoUri) => {
+    if (isMain) {
+      setMainPhotoState(photoUri);
+      console.log('Main photo set:', photoUri);
     } else {
-      addPhoto(index);
+      const newPhotos = [...filledPhotos];
+      newPhotos[index] = photoUri;
+      setFilledPhotos(newPhotos);
+      console.log(`Photo ${index} set:`, photoUri);
     }
   };
 

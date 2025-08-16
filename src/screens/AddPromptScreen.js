@@ -9,9 +9,11 @@ import {
   Image,
   TextInput,
   Alert,
-  Modal
+  Modal,
+  Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 
 const AddPromptScreen = ({ navigation, route }) => {
   const { mainPhoto, photos = [] } = route.params || {};
@@ -19,6 +21,7 @@ const AddPromptScreen = ({ navigation, route }) => {
   const [location, setLocation] = useState('');
   const [caption, setCaption] = useState('');
   const [showPromptDropdown, setShowPromptDropdown] = useState(false);
+  const [currentMainPhoto, setCurrentMainPhoto] = useState(mainPhoto);
 
   // Mock prompts
   const prompts = [
@@ -39,22 +42,83 @@ const AddPromptScreen = ({ navigation, route }) => {
     setShowPromptDropdown(false);
   };
 
-  const handleReplacePhoto = () => {
+  // Request permissions for camera and media library
+  const requestPermissions = async () => {
+    if (Platform.OS !== 'web') {
+      const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+      const { status: mediaLibraryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (cameraStatus !== 'granted' || mediaLibraryStatus !== 'granted') {
+        Alert.alert(
+          'Permissions Required',
+          'Please grant camera and photo library permissions to upload photos.',
+          [{ text: 'OK' }]
+        );
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handleReplacePhoto = async () => {
+    const hasPermissions = await requestPermissions();
+    if (!hasPermissions) return;
+
     Alert.alert(
       'Replace Photo',
       'Choose new photo source',
       [
-        { text: 'Camera', onPress: () => console.log('Camera selected') },
-        { text: 'Gallery', onPress: () => console.log('Gallery selected') },
+        { text: 'Camera', onPress: () => takePhoto() },
+        { text: 'Gallery', onPress: () => pickImage() },
         { text: 'Cancel', style: 'cancel' }
       ]
     );
   };
 
+  const takePhoto = async () => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const photoUri = result.assets[0].uri;
+        setCurrentMainPhoto(photoUri);
+        console.log('Main photo replaced with camera:', photoUri);
+      }
+    } catch (error) {
+      console.error('Camera error:', error);
+      Alert.alert('Error', 'Failed to take photo. Please try again.');
+    }
+  };
+
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const photoUri = result.assets[0].uri;
+        setCurrentMainPhoto(photoUri);
+        console.log('Main photo replaced with gallery:', photoUri);
+      }
+    } catch (error) {
+      console.error('Gallery error:', error);
+      Alert.alert('Error', 'Failed to select photo. Please try again.');
+    }
+  };
+
   const handleNext = () => {
     console.log('Proceeding to photo upload filled screen');
     navigation.navigate('PhotoUploadFilled', { 
-      mainPhoto, 
+      mainPhoto: currentMainPhoto, 
       photos, 
       prompt: selectedPrompt,
       location,
@@ -136,9 +200,9 @@ const AddPromptScreen = ({ navigation, route }) => {
 
         {/* Photo with Grid Overlay */}
         <View style={styles.photoContainer}>
-          {mainPhoto && (
+          {currentMainPhoto && (
             <View style={styles.photoWrapper}>
-              <Image source={{ uri: mainPhoto }} style={styles.photo} />
+              <Image source={{ uri: currentMainPhoto }} style={styles.photo} />
               <View style={styles.gridOverlay}>
                 {/* Grid lines */}
                 <View style={styles.gridLine} />

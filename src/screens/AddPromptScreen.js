@@ -9,11 +9,9 @@ import {
   Image,
   TextInput,
   Alert,
-  Modal,
-  Platform
+  Modal
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
 
 const AddPromptScreen = ({ navigation, route }) => {
   const { mainPhoto, photos = [] } = route.params || {};
@@ -42,88 +40,49 @@ const AddPromptScreen = ({ navigation, route }) => {
     setShowPromptDropdown(false);
   };
 
-  // Request permissions for camera and media library
-  const requestPermissions = async () => {
-    if (Platform.OS !== 'web') {
-      const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
-      const { status: mediaLibraryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
-      if (cameraStatus !== 'granted' || mediaLibraryStatus !== 'granted') {
-        Alert.alert(
-          'Permissions Required',
-          'Please grant camera and photo library permissions to upload photos.',
-          [{ text: 'OK' }]
-        );
-        return false;
-      }
+
+
+  const handleReplacePhoto = () => {
+    // Navigate to PhotoUpload screen to replace photos
+    navigation.navigate('PhotoUpload');
+  };
+
+  const handleUpload = () => {
+    if (!selectedPrompt.trim()) {
+      Alert.alert('Prompt Required', 'Please select a prompt to continue.');
+      return;
     }
-    return true;
-  };
 
-  const handleReplacePhoto = async () => {
-    const hasPermissions = await requestPermissions();
-    if (!hasPermissions) return;
-
-    Alert.alert(
-      'Replace Photo',
-      'Choose new photo source',
-      [
-        { text: 'Camera', onPress: () => takePhoto() },
-        { text: 'Gallery', onPress: () => pickImage() },
-        { text: 'Cancel', style: 'cancel' }
-      ]
-    );
-  };
-
-  const takePhoto = async () => {
-    try {
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaType.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
-
-      if (!result.canceled && result.assets[0]) {
-        const photoUri = result.assets[0].uri;
-        setCurrentMainPhoto(photoUri);
-        console.log('Main photo replaced with camera:', photoUri);
-      }
-    } catch (error) {
-      console.error('Camera error:', error);
-      Alert.alert('Error', 'Failed to take photo. Please try again.');
+    if (!caption.trim()) {
+      Alert.alert('Caption Required', 'Please add a caption to continue.');
+      return;
     }
-  };
 
-  const pickImage = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaType.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
-
-      if (!result.canceled && result.assets[0]) {
-        const photoUri = result.assets[0].uri;
-        setCurrentMainPhoto(photoUri);
-        console.log('Main photo replaced with gallery:', photoUri);
-      }
-    } catch (error) {
-      console.error('Gallery error:', error);
-      Alert.alert('Error', 'Failed to select photo. Please try again.');
-    }
-  };
-
-  const handleNext = () => {
-    console.log('Proceeding to photo upload filled screen');
-    navigation.navigate('PhotoUploadFilled', { 
-      mainPhoto: currentMainPhoto, 
-      photos, 
+    console.log('Uploading prompt with data:', {
+      mainPhoto: currentMainPhoto,
+      photos,
       prompt: selectedPrompt,
       location,
-      caption 
+      caption
     });
+
+    // Navigate to the next screen in the flow
+    navigation.navigate('FaceVerification');
+  };
+
+  const handleCancel = () => {
+    Alert.alert(
+      'Cancel Upload',
+      'Are you sure you want to cancel? Your progress will be lost.',
+      [
+        { text: 'No', style: 'cancel' },
+        { 
+          text: 'Yes', 
+          style: 'destructive',
+          onPress: () => navigation.goBack()
+        }
+      ]
+    );
   };
 
   const handleBack = () => {
@@ -242,14 +201,16 @@ const AddPromptScreen = ({ navigation, route }) => {
           />
         </View>
 
-        {/* Navigation */}
-        <View style={styles.navigationContainer}>
-          <TouchableOpacity style={styles.navButton} onPress={handleBack}>
-            <Ionicons name="chevron-back" size={24} color="#666666" />
+        {/* Action Buttons */}
+        <View style={styles.buttonContainer}>
+
+        <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
+            <Text style={styles.uploadButtonText}>Upload</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navButton} onPress={handleNext}>
-            <Ionicons name="chevron-forward" size={24} color="#666666" />
+          <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+            <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
+          
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -413,7 +374,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   inputContainer: {
-    marginBottom: 15,
+    marginBottom: 10,
   },
   input: {
     backgroundColor: '#FFFFFF',
@@ -425,23 +386,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333333',
   },
-  navigationContainer: {
+  buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 30,
+    paddingVertical: 10,
+    gap: 15,
   },
-  navButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  cancelButton: {
+    flex: 1,
     backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 25,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: '#666666',
+  },
+  uploadButton: {
+    flex: 1,
+    backgroundColor: '#1B5EBD',
+    borderRadius: 25,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#1B5EBD',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  uploadButtonText: {
+    fontSize: 16,
+    color: '#FFFFFF',
   },
 });
 

@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     color: '#666666',
     fontSize: 14,
-    textAlign: 'right',
+    marginLeft: 5,
     marginTop: 10,
     marginBottom: 20,
   },

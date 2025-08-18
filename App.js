@@ -13,7 +13,7 @@ import PhoneNumberScreen from './src/screens/PhoneNumberScreen';
 import OTPVerificationScreen from './src/screens/OTPVerificationScreen';
 import PhotoUploadScreen from './src/screens/PhotoUploadScreen';
 import AddPromptScreen from './src/screens/AddPromptScreen';
-import PhotoUploadFilledScreen from './src/screens/PhotoUploadFilledScreen';
+
 import FaceVerificationScreen from './src/screens/FaceVerificationScreen';
 import FaceVerificationProgressScreen from './src/screens/FaceVerificationProgressScreen';
 import FaceVerificationSuccessScreen from './src/screens/FaceVerificationSuccessScreen';
@@ -75,7 +75,6 @@ export default function App() {
         <Stack.Screen name="OTPVerification" component={OTPVerificationScreen} />
         <Stack.Screen name="PhotoUpload" component={PhotoUploadScreen} />
         <Stack.Screen name="AddPrompt" component={AddPromptScreen} />
-        <Stack.Screen name="PhotoUploadFilled" component={PhotoUploadFilledScreen} />
         <Stack.Screen name="FaceVerification" component={FaceVerificationScreen} />
         <Stack.Screen name="FaceVerificationProgress" component={FaceVerificationProgressScreen} />
         <Stack.Screen name="FaceVerificationSuccess" component={FaceVerificationSuccessScreen} />

@@ -156,14 +156,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#333333',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   emailForm: {
-    marginTop: 0,
+    marginTop: 10,
   },
   continueButton: {
     marginTop: 10,
-    marginBottom: 10,
+    marginBottom: 20,
   },
   signInContainer: {
     alignItems: 'center',

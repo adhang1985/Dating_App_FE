@@ -159,11 +159,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   emailForm: {
-    marginTop: 20,
+    marginTop: 0,
   },
   continueButton: {
     marginTop: 10,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   signInContainer: {
     alignItems: 'center',

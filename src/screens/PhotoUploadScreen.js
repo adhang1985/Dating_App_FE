@@ -53,7 +53,7 @@ const PhotoUploadScreen = ({ navigation }) => {
   const takePhoto = async (index, isMain = false) => {
     try {
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ImagePicker.MediaType.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -72,7 +72,7 @@ const PhotoUploadScreen = ({ navigation }) => {
   const pickImage = async (index, isMain = false) => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ImagePicker.MediaType.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,

@@ -20,15 +20,15 @@ const UserAccountScreen = ({ navigation }) => {
   };
 
   const handleGetMoreSuperLikes = () => {
-    Alert.alert('Get More Super Likes', 'Feature coming soon!');
+    navigation.navigate('SuperLikesPremium');
   };
 
   const handlePremiumPlan = () => {
-    Alert.alert('Premium Plan', 'Upgrade to Premium coming soon!');
+    navigation.navigate('PremiumPlan');
   };
 
   const handleVIPBadge = () => {
-    Alert.alert('VIP Badge', 'Get VIP status coming soon!');
+    navigation.navigate('VIPBadge');
   };
 
   const handleProfileCheckmark = () => {
@@ -36,7 +36,7 @@ const UserAccountScreen = ({ navigation }) => {
   };
 
   const handleYourProfile = () => {
-    Alert.alert('Your Profile', 'Profile settings coming soon!');
+    navigation.navigate('EditProfile');
   };
 
   const handlePaymentMethods = () => {

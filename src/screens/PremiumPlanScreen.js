@@ -12,8 +12,15 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const BoostPremiumScreen = ({ navigation }) => {
+const PremiumPlanScreen = ({ navigation }) => {
+  const [selectedTier, setSelectedTier] = useState('Plus');
   const [selectedPlan, setSelectedPlan] = useState('1month');
+
+  const tiers = [
+    { id: 'Basic', title: 'Basic', background: require('../../assets/prem_basic_bg.png') },
+    { id: 'Plus', title: 'Plus', background: require('../../assets/prem_plus_bg.png') },
+    { id: 'Pro', title: 'Pro', background: require('../../assets/prem_pro_bg.png') },
+  ];
 
   const plans = [
     {
@@ -59,25 +66,17 @@ const BoostPremiumScreen = ({ navigation }) => {
       title: 'Smart Timing Boost (Optional)',
       description: 'Automatically activate Boost when your ideal audience is most active.',
     },
-    {
-      title: 'Live Match Surge Tracker',
-      description: 'Watch your views, likes, and matches roll in — updated in real time.',
-    },
-    {
-      title: 'Boost Streak Bonus',
-      description: 'Boost multiple times in a week to unlock Superlike or Visibility bonuses.',
-    },
   ];
 
   const handleBackPress = () => {
     navigation.goBack();
   };
 
-  const handleBoostNow = () => {
+  const handleGetPremium = () => {
     const selected = plans.find(plan => plan.id === selectedPlan);
     Alert.alert(
-      'Boost Activated!', 
-      `You've selected the ${selected.duration} plan for ${selected.price}${selected.priceUnit || ''}. Payment integration coming soon!`
+      'Premium Plan Activated!', 
+      `You've selected ${selectedTier} ${selected.duration} plan for ${selected.price}${selected.priceUnit || ''}. Payment integration coming soon!`
     );
   };
 
@@ -85,9 +84,14 @@ const BoostPremiumScreen = ({ navigation }) => {
     navigation.goBack();
   };
 
+  const getCurrentBackground = () => {
+    const tier = tiers.find(t => t.id === selectedTier);
+    return tier ? tier.background : tiers[1].background;
+  };
+
   return (
     <ImageBackground 
-      source={require('../../assets/get_boost_bg.png')}
+      source={require('../../assets/get_prem_bg.png')}
       style={styles.container}
       resizeMode="cover"
     >
@@ -95,84 +99,107 @@ const BoostPremiumScreen = ({ navigation }) => {
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           {/* Hero Section */}
           <ImageBackground 
-            source={require('../../assets/get_boost_hd.png')}
+            source={require('../../assets/get_prem_hd.png')}
             style={styles.heroSection}
             imageStyle={styles.heroBackgroundImage}
             resizeMode="cover"
           >
-            <Text style={styles.heroTitle}>Turn Up the Heat{'\n'}on Your Profile</Text>
-            <View style={styles.lightningContainer}>
-              <View style={styles.lightningIcon}>
+            <Text style={styles.heroTitle}>Find the one who{'\n'}truly gets you</Text>
+            <View style={styles.diamondContainer}>
+              <View style={styles.diamondIcon}>
                 <Image 
-                  source={require('../../assets/get_boost_logo.png')}
-                  style={styles.lightningImage}
+                  source={require('../../assets/get_prem_logo.png')}
+                  style={styles.diamondImage}
                   resizeMode="contain"
                 />
               </View>
             </View>
           </ImageBackground>
+
+          {/* Tier Selection */}
+          <View style={styles.tierSection}>
+            {tiers.map((tier) => (
+              <TouchableOpacity
+                key={tier.id}
+                style={[
+                  styles.tierTab,
+                  selectedTier === tier.id && styles.selectedTierTab
+                ]}
+                onPress={() => setSelectedTier(tier.id)}
+              >
+                <Text style={[
+                  styles.tierText,
+                  selectedTier === tier.id && styles.selectedTierText
+                ]}>
+                  {tier.title}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           <View style={styles.heroDescriptionContainer}>
             <Text style={styles.heroDescription}>
               Your profile, center stage. For the next 30{'\n'}minutes, you're the main event.
             </Text>
           </View>
-        {/* Pricing Plans */}
-        <View style={styles.plansSection}>
-          {plans.map((plan) => (
-            <TouchableOpacity
-              key={plan.id}
-              style={[
-                styles.planCard,
-                selectedPlan === plan.id && styles.selectedPlanCard
-              ]}
-              onPress={() => setSelectedPlan(plan.id)}
-            >
-              <Text style={styles.planDuration}>{plan.duration}</Text>
-              <View style={styles.priceRow}>
-                <Text style={styles.planPrice}>{plan.price}</Text>
-                {plan.priceUnit && (
-                  <Text style={styles.priceUnit}>{plan.priceUnit}</Text>
-                )}
-              </View>
-              {plan.isPopular && (
-                <View style={styles.popularBadge}>
-                  <Text style={styles.popularText}>Most Popular</Text>
+
+          {/* Pricing Plans */}
+          <View style={styles.plansSection}>
+            {plans.map((plan) => (
+              <TouchableOpacity
+                key={plan.id}
+                style={[
+                  styles.planCard,
+                  selectedPlan === plan.id && styles.selectedPlanCard
+                ]}
+                onPress={() => setSelectedPlan(plan.id)}
+              >
+                <Text style={styles.planDuration}>{plan.duration}</Text>
+                <View style={styles.priceRow}>
+                  <Text style={styles.planPrice}>{plan.price}</Text>
+                  {plan.priceUnit && (
+                    <Text style={styles.priceUnit}>{plan.priceUnit}</Text>
+                  )}
                 </View>
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
+                {plan.isPopular && (
+                  <View style={styles.popularBadge}>
+                    <Text style={styles.popularText}>Most Popular</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        {/* Benefits Section */}
-        <View style={styles.benefitsSection}>
-          {benefits.map((benefit, index) => (
-            <View key={index} style={styles.benefitItem}>
-              <View style={styles.checkmarkContainer}>
-                <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+          {/* Benefits Section */}
+          <View style={styles.benefitsSection}>
+            {benefits.map((benefit, index) => (
+              <View key={index} style={styles.benefitItem}>
+                <View style={styles.checkmarkContainer}>
+                  <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+                </View>
+                <View style={styles.benefitContent}>
+                  <Text style={styles.benefitTitle}>{benefit.title}</Text>
+                  <Text style={styles.benefitDescription}>{benefit.description}</Text>
+                </View>
               </View>
-              <View style={styles.benefitContent}>
-                <Text style={styles.benefitTitle}>{benefit.title}</Text>
-                <Text style={styles.benefitDescription}>{benefit.description}</Text>
-              </View>
-            </View>
-          ))}
+            ))}
+          </View>
+
+          {/* Bottom Padding */}
+          <View style={styles.bottomPadding} />
+        </ScrollView>
+
+        {/* Bottom Action Buttons */}
+        <View style={styles.bottomActions}>
+          <TouchableOpacity style={styles.premiumButton} onPress={handleGetPremium}>
+            <Text style={styles.premiumButtonText}>
+              Get {selectedTier} - {plans.find(p => p.id === selectedPlan)?.price}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.notNowButton} onPress={handleNotNow}>
+            <Text style={styles.notNowButtonText}>Not Now</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Bottom Padding */}
-        <View style={styles.bottomPadding} />
-      </ScrollView>
-
-      {/* Bottom Action Buttons */}
-      <View style={styles.bottomActions}>
-        <TouchableOpacity style={styles.boostButton} onPress={handleBoostNow}>
-          <Text style={styles.boostButtonText}>
-            Boost Now - {plans.find(p => p.id === selectedPlan)?.price}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.notNowButton} onPress={handleNotNow}>
-          <Text style={styles.notNowButtonText}>Not Now</Text>
-        </TouchableOpacity>
-      </View>
       </SafeAreaView>
     </ImageBackground>
   );
@@ -180,7 +207,7 @@ const BoostPremiumScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
   safeArea: {
     flex: 1,
@@ -193,7 +220,7 @@ const styles = StyleSheet.create({
   heroSection: {
     alignItems: 'center',
     padding: 30,
-    marginBottom: 30,
+    marginBottom: 0,
     marginTop: 10,
     borderRadius: 20,
     overflow: 'hidden',
@@ -205,13 +232,17 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#724F0C',
-    textAlign: 'center'
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
-  lightningContainer: {
-    marginBottom: 0
+  diamondContainer: {
+    marginBottom: 0,
+    marginTop: 20,
   },
-  lightningIcon: {
+  diamondIcon: {
     width: 90,
     height: 90,
     borderRadius: 0,
@@ -219,15 +250,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 10
   },
-  lightningImage: {
+  diamondImage: {
     width: 70,
     height: 70,
+  },
+  tierSection: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 25,
+    padding: 4,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  tierTab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 20,
+  },
+  selectedTierTab: {
+    backgroundColor: '#1B5EBD',
+  },
+  tierText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+  },
+  selectedTierText: {
+    color: '#FFFFFF',
+  },
+  heroDescriptionContainer: {
+    paddingHorizontal: 20,
   },
   heroDescription: {
     fontSize: 16,
     color: '#151515',
     textAlign: 'center',
-    marginBottom: 30
+    marginBottom: 30,
+    marginTop: 0,
   },
   plansSection: {
     flexDirection: 'row',
@@ -258,6 +318,7 @@ const styles = StyleSheet.create({
   priceRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
+    marginBottom: 10
   },
   planPrice: {
     fontSize: 18,
@@ -268,16 +329,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginLeft: 4,
-    marginBottom: 10
   },
   popularBadge: {
-    backgroundColor: '#D1FFC3',
+    backgroundColor: '#4CAF50',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
   popularText: {
-    color: '#000',
+    color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '600',
   },
@@ -318,17 +378,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
-    marginTop: 20,
-    marginBottom: 30
+    marginBottom: 20
   },
-  boostButton: {
-    backgroundColor: '#D4A574',
+  premiumButton: {
+    backgroundColor: '#1B5EBD',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
     marginBottom: 12,
   },
-  boostButtonText: {
+  premiumButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
@@ -346,4 +405,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BoostPremiumScreen;
+export default PremiumPlanScreen;

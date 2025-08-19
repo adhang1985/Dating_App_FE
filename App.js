@@ -53,6 +53,10 @@ import ChatDetailScreen from './src/screens/ChatDetailScreen';
 import UserAccountScreen from './src/screens/UserAccountScreen';
 import ProfileVerificationScreen from './src/screens/ProfileVerificationScreen';
 import BoostPremiumScreen from './src/screens/BoostPremiumScreen';
+import SuperLikesPremiumScreen from './src/screens/SuperLikesPremiumScreen';
+import PremiumPlanScreen from './src/screens/PremiumPlanScreen';
+import VIPBadgeScreen from './src/screens/VIPBadgeScreen';
+import EditProfileScreen from './src/screens/EditProfileScreen';
 
 const Stack = createStackNavigator();
 
@@ -117,6 +121,10 @@ export default function App() {
         <Stack.Screen name="UserAccount" component={UserAccountScreen} />
         <Stack.Screen name="ProfileVerification" component={ProfileVerificationScreen} />
         <Stack.Screen name="BoostPremium" component={BoostPremiumScreen} />
+        <Stack.Screen name="SuperLikesPremium" component={SuperLikesPremiumScreen} />
+        <Stack.Screen name="PremiumPlan" component={PremiumPlanScreen} />
+        <Stack.Screen name="VIPBadge" component={VIPBadgeScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

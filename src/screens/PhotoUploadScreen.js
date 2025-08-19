@@ -223,9 +223,7 @@ const PhotoUploadScreen = ({ navigation }) => {
     });
   };
 
-  const handleBack = () => {
-    navigation.goBack();
-  };
+
 
   const PhotoPlaceholder = ({ 
     onPress, 
@@ -399,9 +397,6 @@ const PhotoUploadScreen = ({ navigation }) => {
 
         {/* Navigation */}
         <View style={styles.navigationContainer}>
-          <TouchableOpacity style={styles.navButton} onPress={handleBack}>
-            <Ionicons name="chevron-back" size={24} color="#666666" />
-          </TouchableOpacity>
           <TouchableOpacity style={styles.navButton} onPress={handleNext}>
             <Ionicons name="chevron-forward" size={24} color="#666666" />
           </TouchableOpacity>
@@ -548,7 +543,7 @@ const styles = StyleSheet.create({
   },
   navigationContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     paddingBottom: 30,
   },
   navButton: {

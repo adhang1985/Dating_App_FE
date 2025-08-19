@@ -15,11 +15,34 @@ import { Ionicons } from '@expo/vector-icons';
 
 const AddPromptScreen = ({ navigation, route }) => {
   const { mainPhoto, photos = [] } = route.params || {};
-  const [selectedPrompt, setSelectedPrompt] = useState('');
-  const [location, setLocation] = useState('');
-  const [caption, setCaption] = useState('');
-  const [showPromptDropdown, setShowPromptDropdown] = useState(false);
-  const [currentMainPhoto, setCurrentMainPhoto] = useState(mainPhoto);
+  
+  // State for multiple prompt groups
+  const [promptGroups, setPromptGroups] = useState([
+    {
+      id: 1,
+      selectedPrompt: '',
+      location: '',
+      caption: '',
+      photo: mainPhoto,
+      showDropdown: false
+    },
+    {
+      id: 2,
+      selectedPrompt: '',
+      location: '',
+      caption: '',
+      photo: photos[0] || null,
+      showDropdown: false
+    },
+    {
+      id: 3,
+      selectedPrompt: '',
+      location: '',
+      caption: '',
+      photo: photos[1] || null,
+      showDropdown: false
+    }
+  ]);
 
   // Mock prompts
   const prompts = [
@@ -35,54 +58,35 @@ const AddPromptScreen = ({ navigation, route }) => {
     "Red flag I avoid"
   ];
 
-  const handlePromptSelect = (prompt) => {
-    setSelectedPrompt(prompt);
-    setShowPromptDropdown(false);
-  };
-
-
-
-  const handleReplacePhoto = () => {
-    // Navigate to PhotoUpload screen to replace photos
-    navigation.navigate('PhotoUpload');
-  };
-
-  const handleUpload = () => {
-    if (!selectedPrompt.trim()) {
-      Alert.alert('Prompt Required', 'Please select a prompt to continue.');
-      return;
-    }
-
-    if (!caption.trim()) {
-      Alert.alert('Caption Required', 'Please add a caption to continue.');
-      return;
-    }
-
-    console.log('Uploading prompt with data:', {
-      mainPhoto: currentMainPhoto,
-      photos,
-      prompt: selectedPrompt,
-      location,
-      caption
-    });
-
-    // Navigate to the next screen in the flow
-    navigation.navigate('FaceVerification');
-  };
-
-  const handleCancel = () => {
-    Alert.alert(
-      'Cancel Upload',
-      'Are you sure you want to cancel? Your progress will be lost.',
-      [
-        { text: 'No', style: 'cancel' },
-        { 
-          text: 'Yes', 
-          style: 'destructive',
-          onPress: () => navigation.goBack()
-        }
-      ]
+  // Helper functions for updating prompt groups
+  const updatePromptGroup = (groupId, field, value) => {
+    setPromptGroups(prevGroups => 
+      prevGroups.map(group => 
+        group.id === groupId 
+          ? { ...group, [field]: value }
+          : group
+      )
     );
+  };
+
+  const handlePromptSelect = (groupId, prompt) => {
+    updatePromptGroup(groupId, 'selectedPrompt', prompt);
+    updatePromptGroup(groupId, 'showDropdown', false);
+  };
+
+  const toggleDropdown = (groupId) => {
+    setPromptGroups(prevGroups => 
+      prevGroups.map(group => ({
+        ...group,
+        showDropdown: group.id === groupId ? !group.showDropdown : false
+      }))
+    );
+  };
+
+  const handleReplacePhoto = (groupId) => {
+    // Navigate to PhotoUpload screen to replace photos
+    // You can pass the groupId to identify which photo to replace
+    navigation.navigate('PhotoUpload', { groupId });
   };
 
   const handleBack = () => {
@@ -104,115 +108,146 @@ const AddPromptScreen = ({ navigation, route }) => {
           Photos with prompt get more likes and spark more conversations.
         </Text>
 
-        {/* Prompt Selector Container */}
-        <View style={styles.promptSelectorContainer}>
-          <TouchableOpacity 
-            style={styles.promptSelector}
-            onPress={() => setShowPromptDropdown(!showPromptDropdown)}
-          >
-            <Text style={[styles.promptText, !selectedPrompt && styles.placeholderText]}>
-              {selectedPrompt || 'Select a Prompt'}
-            </Text>
-            <Ionicons 
-              name={showPromptDropdown ? "chevron-up" : "chevron-down"} 
-              size={20} 
-              color="#666666" 
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Modal Dropdown - No scroll conflicts */}
-        <Modal
-          visible={showPromptDropdown}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setShowPromptDropdown(false)}
-        >
-          <TouchableOpacity 
-            style={styles.modalBackdrop}
-            activeOpacity={1}
-            onPress={() => setShowPromptDropdown(false)}
-          >
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Select a Prompt</Text>
-              <ScrollView 
-                style={styles.modalScrollView}
-                showsVerticalScrollIndicator={true}
+        {/* Render multiple prompt groups */}
+        {promptGroups.map((group, index) => (
+          <View key={group.id} style={styles.promptGroupContainer}>
+            {/* Prompt Selector */}
+            <View style={styles.promptSelectorContainer}>
+              <TouchableOpacity 
+                style={styles.promptSelector}
+                onPress={() => toggleDropdown(group.id)}
               >
-                {prompts.map((prompt, index) => (
-                  <TouchableOpacity 
-                    key={index}
-                    style={[
-                      styles.modalItem,
-                      index === prompts.length - 1 && styles.lastModalItem
-                    ]}
-                    onPress={() => handlePromptSelect(prompt)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.modalItemText}>{prompt}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          </TouchableOpacity>
-        </Modal>
-
-        {/* Photo with Grid Overlay */}
-        <View style={styles.photoContainer}>
-          {currentMainPhoto && (
-            <View style={styles.photoWrapper}>
-              <Image source={{ uri: currentMainPhoto }} style={styles.photo} />
-              <View style={styles.gridOverlay}>
-                {/* Grid lines */}
-                <View style={styles.gridLine} />
-                <View style={[styles.gridLine, styles.gridLineVertical]} />
-                <View style={[styles.gridLine, { top: '66.66%' }]} />
-                <View style={[styles.gridLine, styles.gridLineVertical, { left: '33.33%' }]} />
-                <View style={[styles.gridLine, styles.gridLineVertical, { left: '66.66%' }]} />
-              </View>
-              <TouchableOpacity style={styles.replaceButton} onPress={handleReplacePhoto}>
-                <Ionicons name="refresh-outline" size={16} color="#FFFFFF" />
-                <Text style={styles.replaceText}>Replace</Text>
+                <Text style={[styles.promptText, !group.selectedPrompt && styles.placeholderText]}>
+                  {group.selectedPrompt || 'Select a Prompt'}
+                </Text>
+                <Ionicons 
+                  name={group.showDropdown ? "chevron-up" : "chevron-down"} 
+                  size={20} 
+                  color="#666666" 
+                />
               </TouchableOpacity>
             </View>
-          )}
-        </View>
 
-        {/* Location Input */}
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Add a Location"
-            placeholderTextColor="#999999"
-            value={location}
-            onChangeText={setLocation}
-          />
-        </View>
+            {/* Modal Dropdown for this group */}
+            <Modal
+              visible={group.showDropdown}
+              transparent={true}
+              animationType="fade"
+              onRequestClose={() => updatePromptGroup(group.id, 'showDropdown', false)}
+            >
+              <TouchableOpacity 
+                style={styles.modalBackdrop}
+                activeOpacity={1}
+                onPress={() => updatePromptGroup(group.id, 'showDropdown', false)}
+              >
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>Select a Prompt</Text>
+                  <ScrollView 
+                    style={styles.modalScrollView}
+                    showsVerticalScrollIndicator={true}
+                  >
+                    {prompts.map((prompt, promptIndex) => (
+                      <TouchableOpacity 
+                        key={promptIndex}
+                        style={[
+                          styles.modalItem,
+                          promptIndex === prompts.length - 1 && styles.lastModalItem
+                        ]}
+                        onPress={() => handlePromptSelect(group.id, prompt)}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={styles.modalItemText}>{prompt}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </TouchableOpacity>
+            </Modal>
 
-        {/* Caption Input */}
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Add a caption"
-            placeholderTextColor="#999999"
-            value={caption}
-            onChangeText={setCaption}
-            multiline
-          />
-        </View>
+            {/* Photo with Grid Overlay */}
+            <View style={styles.photoContainer}>
+              {group.photo ? (
+                <View style={styles.photoWrapper}>
+                  <Image source={{ uri: group.photo }} style={styles.photo} />
+                  <View style={styles.gridOverlay}>
+                    {/* Grid lines */}
+                    <View style={styles.gridLine} />
+                    <View style={[styles.gridLine, styles.gridLineVertical]} />
+                    <View style={[styles.gridLine, { top: '66.66%' }]} />
+                    <View style={[styles.gridLine, styles.gridLineVertical, { left: '33.33%' }]} />
+                    <View style={[styles.gridLine, styles.gridLineVertical, { left: '66.66%' }]} />
+                  </View>
+                  <TouchableOpacity style={styles.replaceButton} onPress={() => handleReplacePhoto(group.id)}>
+                    <Ionicons name="refresh-outline" size={16} color="#FFFFFF" />
+                    <Text style={styles.replaceText}>Replace</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={styles.emptyPhotoContainer}>
+                  <TouchableOpacity style={styles.addPhotoButton} onPress={() => handleReplacePhoto(group.id)}>
+                    <Ionicons name="camera-outline" size={40} color="#999999" />
+                    <Text style={styles.addPhotoText}>Add Photo</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
 
-        {/* Action Buttons */}
-        <View style={styles.buttonContainer}>
+            {/* Location Input */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Location (Optional)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Add a Location"
+                placeholderTextColor="#999999"
+                value={group.location}
+                onChangeText={(text) => updatePromptGroup(group.id, 'location', text)}
+              />
+            </View>
 
-        <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
-            <Text style={styles.uploadButtonText}>Upload</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
-          
-        </View>
+            {/* Caption Textarea */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Caption</Text>
+              <TextInput
+                style={styles.textareaInput}
+                placeholder="Write something about this photo..."
+                placeholderTextColor="#999999"
+                value={group.caption}
+                onChangeText={(text) => updatePromptGroup(group.id, 'caption', text)}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                maxLength={500}
+              />
+              <Text style={styles.characterCount}>{group.caption.length}/500</Text>
+            </View>
+
+            {/* Separator between groups */}
+            {index < promptGroups.length - 1 && <View style={styles.groupSeparator} />}
+          </View>
+        ))}
       </ScrollView>
+      
+      {/* Upload and Cancel Buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity 
+          style={styles.cancelButton}
+          onPress={handleBack}
+        >
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.uploadButton}
+          onPress={() => {
+            // Handle upload logic here
+            console.log('Prompts uploaded successfully');
+            // Navigate to Face Verification Screen
+            navigation.navigate('FaceVerification');
+          }}
+        >
+          <Text style={styles.uploadButtonText}>Upload</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -226,6 +261,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 25,
     paddingTop: 20,
+    paddingBottom: 100, // Add space for buttons
   },
   progressContainer: {
     paddingHorizontal: 25,
@@ -374,7 +410,13 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   inputContainer: {
-    marginBottom: 10,
+    marginBottom: 15,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 8,
   },
   input: {
     backgroundColor: '#FFFFFF',
@@ -386,11 +428,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333333',
   },
+  textareaInput: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
+    fontSize: 16,
+    color: '#333333',
+    minHeight: 100,
+    maxHeight: 150,
+    textAlignVertical: 'top',
+  },
+  characterCount: {
+    fontSize: 12,
+    color: '#999999',
+    textAlign: 'right',
+    marginTop: 5,
+  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 10,
+    paddingHorizontal: 25,
+    paddingVertical: 20,
+    paddingBottom: 50,
     gap: 15,
+    backgroundColor: '#F5F5F5',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
   },
   cancelButton: {
     flex: 1,
@@ -421,6 +487,38 @@ const styles = StyleSheet.create({
   uploadButtonText: {
     fontSize: 16,
     color: '#FFFFFF',
+  },
+  promptGroupContainer: {
+    marginBottom: 30,
+  },
+  emptyPhotoContainer: {
+    width: '100%',
+    height: 250,
+    backgroundColor: '#F8F8F8',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  addPhotoButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  addPhotoText: {
+    fontSize: 16,
+    color: '#999999',
+    marginTop: 10,
+    fontWeight: '500',
+  },
+  groupSeparator: {
+    height: 1,
+    backgroundColor: '#E0E0E0',
+    marginVertical: 20,
+    marginHorizontal: 20,
   },
 });
 

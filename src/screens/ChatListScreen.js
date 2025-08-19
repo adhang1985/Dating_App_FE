@@ -197,7 +197,7 @@ const ChatListScreen = ({ navigation }) => {
             </View>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('UserAccount')}>
           <Ionicons name="person" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>

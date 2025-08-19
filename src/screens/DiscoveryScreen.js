@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,11 @@ import {
   Dimensions,
   ScrollView,
   TextInput,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,13 +25,19 @@ const DiscoveryScreen = ({ navigation }) => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [showFiltersModal, setShowFiltersModal] = useState(false);
   const [currentProfile, setCurrentProfile] = useState(0);
-  const [selectedMembership, setSelectedMembership] = useState('signature');
+  const [likeCount, setLikeCount] = useState(0);
+  const [superLikeCount, setSuperLikeCount] = useState(0);
   
   // Filter states
   const [filterLocation, setFilterLocation] = useState('Jaipur');
   const [filterGender, setFilterGender] = useState('Female');
   const [filterAgeRange, setFilterAgeRange] = useState([20, 40]);
   const [filterDistance, setFilterDistance] = useState(20);
+
+  // Swipe animation states
+  const translateX = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
+  const rotate = useRef(new Animated.Value(0)).current;
 
   const allProfiles = useMemo(() => [
     {
@@ -55,7 +63,7 @@ const DiscoveryScreen = ({ navigation }) => {
       name: "Emma",
       age: 28,
       image: "https://picsum.photos/400/600?random=3",
-      membershipType: "signature",
+      membershipType: "common",
       isNew: true,
       description: "Artist and dreamer. Looking for deep conversations and genuine connections."
     },
@@ -82,24 +90,133 @@ const DiscoveryScreen = ({ navigation }) => {
       name: "Rachel",
       age: 29,
       image: "https://picsum.photos/400/600?random=6",
-      membershipType: "executive",
+      membershipType: "common",
       isNew: false,
       description: "Doctor and traveler. Passionate about helping others and exploring the world."
+    },
+    {
+      id: 7,
+      name: "Maya",
+      age: 23,
+      image: "https://picsum.photos/400/600?random=7",
+      membershipType: "common",
+      isNew: true,
+      description: "Student and part-time photographer. Love capturing beautiful moments and creating memories."
+    },
+    {
+      id: 8,
+      name: "Lisa",
+      age: 30,
+      image: "https://picsum.photos/400/600?random=8",
+      membershipType: "signature",
+      isNew: false,
+      description: "Marketing professional who loves yoga and weekend getaways."
     }
   ], []);
 
-  // Filter profiles based on selected membership
-  const profiles = useMemo(() => {
-    return allProfiles.filter(profile => profile.membershipType === selectedMembership);
-  }, [allProfiles, selectedMembership]);
+  // Show all profiles (no membership filtering)
+  const profiles = allProfiles;
 
   const handleRefresh = useCallback(() => {
     console.log('Refreshing profiles');
     setCurrentProfile(0);
   }, []);
 
+  // Swipe gesture handling
+  const onPanGestureEvent = useCallback((event) => {
+    const { translationX, translationY } = event.nativeEvent;
+    translateX.setValue(translationX);
+    translateY.setValue(translationY);
+    
+    // Add rotation based on horizontal movement
+    const rotation = translationX / width * 0.4;
+    rotate.setValue(rotation);
+  }, [translateX, translateY, rotate, width]);
+
+  const onPanStateChange = useCallback((event) => {
+    if (event.nativeEvent.state === State.END) {
+      const { translationX, velocityX } = event.nativeEvent;
+      const threshold = width * 0.3;
+      
+      if (Math.abs(translationX) > threshold || Math.abs(velocityX) > 1000) {
+        // Determine swipe direction
+        const isSwipeLeft = translationX < 0;
+        
+        if (isSwipeLeft) {
+          // Swipe left - Like
+          handleLike();
+        } else {
+          // Swipe right - Pass/Dislike
+          handlePass();
+        }
+        
+        // Animate card out
+        Animated.timing(translateX, {
+          toValue: isSwipeLeft ? -width : width,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          // Reset position - profile progression is handled in handleLike/handlePass
+          translateX.setValue(0);
+          translateY.setValue(0);
+          rotate.setValue(0);
+        });
+      } else {
+        // Snap back to center
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+        }).start();
+        Animated.spring(translateY, {
+          toValue: 0,
+          useNativeDriver: true,
+        }).start();
+        Animated.spring(rotate, {
+          toValue: 0,
+          useNativeDriver: true,
+        }).start();
+      }
+    }
+  }, [translateX, translateY, rotate, width, handleLike, handlePass]);
+
   const handleLike = useCallback(() => {
-    console.log('Like pressed');
+    if (likeCount >= 5) {
+      console.log('Like attempt blocked - User has reached daily limit');
+      setShowOutOfLikesModal(true);
+      // Still move to next profile even when limit is reached
+      if (currentProfile < profiles.length - 1) {
+        setCurrentProfile(currentProfile + 1);
+      } else {
+        setCurrentProfile(0);
+      }
+      return;
+    }
+    
+    console.log('Like pressed - User interested');
+    setLikeCount(prev => prev + 1);
+    
+    // Check if this like reaches the limit
+    if (likeCount + 1 >= 5) {
+      // Show modal immediately when reaching limit
+      setTimeout(() => {
+        setShowOutOfLikesModal(true);
+      }, 500); // Small delay to let the swipe animation complete
+    }
+    
+    // Move to next profile
+    if (currentProfile < profiles.length - 1) {
+      setCurrentProfile(currentProfile + 1);
+    } else {
+      setCurrentProfile(0);
+    }
+  }, [likeCount, currentProfile, profiles.length]);
+
+  const handleSuperLike = useCallback(() => {
+    console.log('Super like pressed - Enhanced interest!');
+    setSuperLikeCount(prev => prev + 1);
+    
+    // Super likes don't count against regular like limit
+    // Move to next profile
     if (currentProfile < profiles.length - 1) {
       setCurrentProfile(currentProfile + 1);
     } else {
@@ -107,12 +224,10 @@ const DiscoveryScreen = ({ navigation }) => {
     }
   }, [currentProfile, profiles.length]);
 
-  const handleSuperLike = useCallback(() => {
-    console.log('Super like pressed');
-  }, []);
-
   const handlePass = useCallback(() => {
-    console.log('Pass pressed');
+    console.log('Pass pressed - User not interested');
+    
+    // Move to next profile
     if (currentProfile < profiles.length - 1) {
       setCurrentProfile(currentProfile + 1);
     } else {
@@ -121,13 +236,7 @@ const DiscoveryScreen = ({ navigation }) => {
   }, [currentProfile, profiles.length]);
 
   const handleProfilePress = useCallback(() => {
-    if (profile?.membershipType === 'signature') {
-      navigation.navigate('SignatureProfile', { profile });
-    } else if (profile?.membershipType === 'executive') {
-      navigation.navigate('ExecutiveProfile', { profile });
-    } else {
-      navigation.navigate('ProfileDetail', { profile });
-    }
+    navigation.navigate('ProfileDetail', { profile });
   }, [navigation, profile]);
 
   // Filter handlers
@@ -178,12 +287,7 @@ const DiscoveryScreen = ({ navigation }) => {
     setShowFiltersModal(true);
   }, []);
 
-  const handleMembershipFilter = useCallback((membershipType) => {
-    if (membershipType !== selectedMembership) {
-      setSelectedMembership(membershipType);
-      setCurrentProfile(0);
-    }
-  }, [selectedMembership]);
+
 
   const handleChat = useCallback(() => {
     console.log('Chat pressed');
@@ -202,9 +306,11 @@ const DiscoveryScreen = ({ navigation }) => {
           <Ionicons name="refresh-outline" size={24} color="#333" />
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.outOfLikesButton} onPress={() => setShowOutOfLikesModal(true)}>
-          <Text style={styles.outOfLikesText}>Out of Likes for now</Text>
-        </TouchableOpacity>
+        {likeCount >= 5 && (
+          <TouchableOpacity style={styles.outOfLikesButton} onPress={() => setShowOutOfLikesModal(true)}>
+            <Text style={styles.outOfLikesText}>Out of Likes for now</Text>
+          </TouchableOpacity>
+        )}
         
         <TouchableOpacity style={styles.headerButton} onPress={handleFiltersPress}>
           <Ionicons name="options-outline" size={24} color="#333" />
@@ -215,52 +321,47 @@ const DiscoveryScreen = ({ navigation }) => {
       <View style={styles.mainContent}>
         {/* Profile Card */}
         <View style={styles.cardContainer}>
-          <TouchableOpacity style={styles.profileCard} onPress={handleProfilePress}>
-            {/* Profile Image */}
-            <Image 
-              source={{ uri: profile?.image }} 
-              style={styles.profileImage}
-              onError={(error) => console.log('Image loading error:', error)}
-              onLoad={() => console.log('Image loaded successfully')}
-              resizeMode="cover"
-            />
-            
-            {/* Membership Tabs Overlay on Image */}
-            <View style={styles.membershipTabsOverlay}>
-              <TouchableOpacity 
-                style={[
-                  styles.membershipTab, 
-                  styles.signatureTab,
-                  selectedMembership === 'signature' && styles.activeTab
-                ]}
-                onPress={() => {
-                  handleMembershipFilter('signature');
-                  if (profiles.length > 0) {
-                    const signatureProfile = profiles.find(p => p.membershipType === 'signature') || profiles[0];
-                    navigation.navigate('SignatureProfile', { profile: signatureProfile });
-                  }
-                }}
-              >
-                <Text style={styles.membershipTabText}>SIGNATURE</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[
-                  styles.membershipTab, 
-                  styles.executiveTab,
-                  selectedMembership === 'executive' && styles.activeTab
-                ]}
-                onPress={() => {
-                  handleMembershipFilter('executive');
-                  if (profiles.length > 0) {
-                    const executiveProfile = profiles.find(p => p.membershipType === 'executive') || profiles[0];
-                    navigation.navigate('ExecutiveProfile', { profile: executiveProfile });
-                  }
-                }}
-              >
-                <Text style={styles.membershipTabText}>EXECUTIVE</Text>
-              </TouchableOpacity>
-            </View>
+          <PanGestureHandler
+            onGestureEvent={onPanGestureEvent}
+            onHandlerStateChange={onPanStateChange}
+          >
+            <Animated.View
+              style={[
+                styles.profileCard,
+                {
+                  transform: [
+                    { translateX },
+                    { translateY },
+                    { rotate: rotate.interpolate({
+                        inputRange: [-1, 1],
+                        outputRange: ['-30deg', '30deg'],
+                      })
+                    }
+                  ]
+                }
+              ]}
+            >
+              <TouchableOpacity style={styles.cardTouchable} onPress={handleProfilePress}>
+                {/* Profile Image */}
+                <Image 
+                  source={{ uri: profile?.image }} 
+                  style={styles.profileImage}
+                  onError={(error) => console.log('Image loading error:', error)}
+                  onLoad={() => console.log('Image loaded successfully')}
+                  resizeMode="cover"
+                />
+                
+                {/* Membership Banner */}
+                {profile?.membershipType !== 'common' && (
+                  <View style={[
+                    styles.membershipBanner,
+                    profile?.membershipType === 'signature' ? styles.signatureBanner : styles.executiveBanner
+                  ]}>
+                    <Text style={styles.membershipBannerText}>
+                      {profile?.membershipType?.toUpperCase()}
+                    </Text>
+                  </View>
+                )}
             
             {/* Profile Info Overlay */}
             <View style={styles.profileOverlay}>
@@ -278,16 +379,18 @@ const DiscoveryScreen = ({ navigation }) => {
                 </View>
               </View>
             </View>
-            
-            {/* Action Buttons - Positioned at bottom corners */}
-            <TouchableOpacity style={styles.chatButtonBottom} onPress={handleChat}>
-              <Ionicons name="chatbubble" size={24} color="#1B5EBD" />
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.starButtonBottom} onPress={handleSuperLike}>
-              <Ionicons name="star" size={28} color="#FFFFFF" />
-            </TouchableOpacity>
-          </TouchableOpacity>
+                
+                {/* Action Buttons - Positioned at bottom corners */}
+                <TouchableOpacity style={styles.chatButtonBottom} onPress={handleChat}>
+                  <Ionicons name="chatbubble" size={24} color="#1B5EBD" />
+                </TouchableOpacity>
+                
+                <TouchableOpacity style={styles.starButtonBottom} onPress={handleSuperLike}>
+                  <Ionicons name="star" size={28} color="#FFFFFF" />
+                </TouchableOpacity>
+              </TouchableOpacity>
+            </Animated.View>
+          </PanGestureHandler>
         </View>
       </View>
 
@@ -310,7 +413,7 @@ const DiscoveryScreen = ({ navigation }) => {
             </View>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('UserAccount')}>
           <Ionicons name="person" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
@@ -524,41 +627,34 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
 
-  signatureTab: {
-    backgroundColor: '#1B5EBD',
-  },
-  executiveTab: {
-    backgroundColor: '#F0B90B',
-  },
-  membershipTabsOverlay: {
+  membershipBanner: {
     position: 'absolute',
-    top: 20,
-    left: 20,
-    right: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
     zIndex: 2,
   },
-  membershipTab: {
-    borderRadius: 15,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    opacity: 0.7,
+  signatureBanner: {
+    backgroundColor: '#1B5EBD',
   },
-  activeTab: {
-    opacity: 1,
+  executiveBanner: {
+    backgroundColor: '#F0B90B',
   },
-  membershipTabText: {
+  membershipBannerText: {
     color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 1.5,
+    letterSpacing: 2,
+    textAlign: 'center',
+  },
+  cardTouchable: {
+    flex: 1,
+    position: 'relative',
   },
   cardContainer: {
     flex: 1,

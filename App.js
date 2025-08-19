@@ -46,12 +46,13 @@ import PromptPollScreen from './src/screens/PromptPollScreen';
 import DiscoveryScreen from './src/screens/DiscoveryScreen';
 import ProfileDetailScreen from './src/screens/ProfileDetailScreen';
 import FiltersScreen from './src/screens/FiltersScreen';
-import SignatureProfileScreen from './src/screens/SignatureProfileScreen';
-import ExecutiveProfileScreen from './src/screens/ExecutiveProfileScreen';
 import ExploreScreen from './src/screens/ExploreScreen';
 import MatchesScreen from './src/screens/MatchesScreen';
 import ChatListScreen from './src/screens/ChatListScreen';
 import ChatDetailScreen from './src/screens/ChatDetailScreen';
+import UserAccountScreen from './src/screens/UserAccountScreen';
+import ProfileVerificationScreen from './src/screens/ProfileVerificationScreen';
+import BoostPremiumScreen from './src/screens/BoostPremiumScreen';
 
 const Stack = createStackNavigator();
 
@@ -108,13 +109,14 @@ export default function App() {
         <Stack.Screen name="PromptPoll" component={PromptPollScreen} />
         <Stack.Screen name="Discovery" component={DiscoveryScreen} />
         <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
-        <Stack.Screen name="SignatureProfile" component={SignatureProfileScreen} />
-        <Stack.Screen name="ExecutiveProfile" component={ExecutiveProfileScreen} />
         <Stack.Screen name="Filters" component={FiltersScreen} />
         <Stack.Screen name="Explore" component={ExploreScreen} />
         <Stack.Screen name="Matches" component={MatchesScreen} />
         <Stack.Screen name="ChatList" component={ChatListScreen} />
         <Stack.Screen name="ChatDetail" component={ChatDetailScreen} />
+        <Stack.Screen name="UserAccount" component={UserAccountScreen} />
+        <Stack.Screen name="ProfileVerification" component={ProfileVerificationScreen} />
+        <Stack.Screen name="BoostPremium" component={BoostPremiumScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

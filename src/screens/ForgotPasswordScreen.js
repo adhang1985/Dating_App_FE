@@ -4,7 +4,8 @@ import {
   Text, 
   StyleSheet, 
   SafeAreaView,
-  TouchableOpacity 
+  TouchableOpacity,
+  Image
 } from 'react-native';
 import Logo from '../components/Logo';
 import CustomButton from '../components/CustomButton';
@@ -31,7 +32,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Logo iconOnly={true} />
+        <Image source={require('../../assets/Frame.png')} style={styles.frameIcon} />
         
         <Text style={styles.title}>Forgot Password?</Text>
         
@@ -73,6 +74,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingTop: 20,
     justifyContent: 'center',
+  },
+  frameIcon: {
+    width: 70,
+    height: 60,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,

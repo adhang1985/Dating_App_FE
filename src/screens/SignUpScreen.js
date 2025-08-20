@@ -5,7 +5,8 @@ import {
   StyleSheet, 
   SafeAreaView, 
   ScrollView,
-  TouchableOpacity 
+  TouchableOpacity,
+  Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Logo from '../components/Logo';
@@ -53,7 +54,7 @@ const SignUpScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Logo iconOnly={true} />
+        <Image source={require('../../assets/Frame.png')} style={styles.frameIcon} />
         <Text style={styles.title}>Join us with</Text>
         
         <View style={styles.buttonContainer}>
@@ -135,9 +136,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingTop: 80,
   },
+  frameIcon: {
+    width: 70,
+    height: 60,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
   title: {
     fontSize: 24,
-    fontWeight: '600',
     color: '#333333',
     textAlign: 'center',
     marginBottom: 30,

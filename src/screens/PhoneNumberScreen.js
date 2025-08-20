@@ -8,7 +8,8 @@ import {
   TextInput,
   Modal,
   FlatList,
-  ScrollView
+  ScrollView,
+  Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Logo from '../components/Logo';
@@ -115,7 +116,7 @@ const PhoneNumberScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Logo iconOnly={true} />
+        <Image source={require('../../assets/Frame.png')} style={styles.frameIcon} />
         
         <Text style={styles.title}>What's your mobile number?</Text>
         
@@ -208,6 +209,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingTop: 20,
     justifyContent: 'center',
+  },
+  frameIcon: {
+    width: 70,
+    height: 60,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,

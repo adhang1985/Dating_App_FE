@@ -5,7 +5,8 @@ import {
   StyleSheet, 
   SafeAreaView,
   TouchableOpacity,
-  TextInput 
+  TextInput,
+  Image
 } from 'react-native';
 import Logo from '../components/Logo';
 import CustomButton from '../components/CustomButton';
@@ -78,7 +79,7 @@ const OTPVerificationScreen = ({ navigation, route }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Logo iconOnly={true} />
+        <Image source={require('../../assets/Frame.png')} style={styles.frameIcon} />
         
         <Text style={styles.title}>Enter Verification Code</Text>
         
@@ -146,9 +147,14 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     justifyContent: 'center',
   },
+  frameIcon: {
+    width: 70,
+    height: 60,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
   title: {
     fontSize: 24,
-    fontWeight: '600',
     color: '#333333',
     textAlign: 'center',
     marginBottom: 20,

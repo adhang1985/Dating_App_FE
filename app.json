@@ -16,7 +16,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "This app needs access to camera to capture and upload your profile photos.",
-        "NSPhotoLibraryUsageDescription": "This app needs access to photo library to select and upload your profile photos."
+        "NSPhotoLibraryUsageDescription": "This app needs access to photo library to select and upload your profile photos.",
+        "NSLocationWhenInUseUsageDescription": "This app uses location to find nearby matches for dating."
       }
     },
     "android": {
@@ -27,9 +28,8 @@
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
       ],
       "package": "com.anonymous.quickiesdatingapp"
     }

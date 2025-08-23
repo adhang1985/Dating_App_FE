@@ -32,6 +32,9 @@
         "android.permission.ACCESS_COARSE_LOCATION"
       ],
       "package": "com.anonymous.quickiesdatingapp"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

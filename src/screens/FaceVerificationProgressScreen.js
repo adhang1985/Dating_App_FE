@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -6,34 +6,94 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Image,
-  Animated
+  Animated,
+  Dimensions
 } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const FaceVerificationProgressScreen = ({ navigation }) => {
   const [progress, setProgress] = useState(0);
   const [animatedProgress] = useState(new Animated.Value(0));
+  const [permission, requestPermission] = useCameraPermissions();
+  const [capturedPhoto, setCapturedPhoto] = useState(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [verificationStage, setVerificationStage] = useState('detecting'); // detecting, ready, captured, verifying, complete
+  const [countdown, setCountdown] = useState(0);
+  const cameraRef = useRef(null);
 
   useEffect(() => {
-    // Simulate face verification progress
+    // Start face detection simulation after camera loads
+    if (permission?.granted && verificationStage === 'detecting') {
+      const timer = setTimeout(() => {
+        setVerificationStage('ready');
+        startCountdown();
+      }, 2000); // 2 seconds to "detect" face
+      
+      return () => clearTimeout(timer);
+    }
+  }, [permission?.granted, verificationStage]);
+
+  const startCountdown = () => {
+    setCountdown(3);
+    const countdownInterval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval);
+          startVerificationProcess();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const startVerificationProcess = async () => {
+    setIsCapturing(true);
+    setVerificationStage('captured');
+    
+    // Capture photo
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync({
+          quality: 0.8,
+          base64: false, // Don't need base64 for display
+        });
+        setCapturedPhoto(photo);
+        setVerificationStage('verifying');
+        
+        // Start verification progress
+        startProgressAnimation();
+      } catch (error) {
+        console.error('Failed to capture photo:', error);
+        setIsCapturing(false);
+        setVerificationStage('detecting');
+      }
+    }
+  };
+
+  const startProgressAnimation = () => {
     const interval = setInterval(() => {
       setProgress(prev => {
-        const newProgress = prev + 1;
+        const newProgress = prev + 2; // Complete in 5 seconds
         if (newProgress >= 100) {
           clearInterval(interval);
+          setVerificationStage('complete');
           // Navigate to success screen after completion
           setTimeout(() => {
-            navigation.navigate('FaceVerificationSuccess');
+            navigation.navigate('FaceVerificationSuccess', { 
+              capturedPhoto: capturedPhoto 
+            });
           }, 1000);
           return 100;
         }
         return newProgress;
       });
-    }, 50); // Complete in 5 seconds (100 steps * 50ms)
+    }, 100);
 
     return () => clearInterval(interval);
-  }, [navigation]);
+  };
 
   useEffect(() => {
     Animated.timing(animatedProgress, {
@@ -53,23 +113,57 @@ const FaceVerificationProgressScreen = ({ navigation }) => {
     }
   };
 
+  if (!permission) {
+    return <View style={styles.container}><Text style={styles.permissionText}>Requesting camera permission...</Text></View>;
+  }
+  
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.permissionText}>We need camera permission to verify your face</Text>
+        <TouchableOpacity onPress={requestPermission} style={styles.permissionButton}>
+          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Camera View with Face Overlay */}
       <View style={styles.cameraContainer}>
-        <Image
-          source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&crop=face' }}
-          style={styles.backgroundImage}
-          resizeMode="cover"
+        <CameraView
+          ref={cameraRef}
+          style={styles.camera}
+          facing="front"
         />
         
         {/* Face Detection Frame */}
-        <View style={styles.faceFrame}>
-          <View style={styles.frameCorner} style={[styles.frameCorner, styles.topLeft]} />
-          <View style={styles.frameCorner} style={[styles.frameCorner, styles.topRight]} />
-          <View style={styles.frameCorner} style={[styles.frameCorner, styles.bottomLeft]} />
-          <View style={styles.frameCorner} style={[styles.frameCorner, styles.bottomRight]} />
+        <View style={[
+          styles.faceFrame, 
+          { borderColor: verificationStage === 'ready' || verificationStage === 'captured' ? '#4CAF50' : '#FFFFFF' }
+        ]}>
+          <View style={[styles.frameCorner, styles.topLeft, { borderColor: verificationStage === 'ready' || verificationStage === 'captured' ? '#4CAF50' : '#FFFFFF' }]} />
+          <View style={[styles.frameCorner, styles.topRight, { borderColor: verificationStage === 'ready' || verificationStage === 'captured' ? '#4CAF50' : '#FFFFFF' }]} />
+          <View style={[styles.frameCorner, styles.bottomLeft, { borderColor: verificationStage === 'ready' || verificationStage === 'captured' ? '#4CAF50' : '#FFFFFF' }]} />
+          <View style={[styles.frameCorner, styles.bottomRight, { borderColor: verificationStage === 'ready' || verificationStage === 'captured' ? '#4CAF50' : '#FFFFFF' }]} />
         </View>
+
+        {/* Countdown Display */}
+        {countdown > 0 && (
+          <View style={styles.countdownContainer}>
+            <Text style={styles.countdownText}>{countdown}</Text>
+          </View>
+        )}
+
+        {/* Show captured photo overlay during verification */}
+        {capturedPhoto && verificationStage !== 'detecting' && verificationStage !== 'ready' && (
+          <Image
+            source={{ uri: capturedPhoto.uri }}
+            style={styles.capturedImage}
+            resizeMode="cover"
+          />
+        )}
 
         {/* Overlay for better text visibility */}
         <LinearGradient
@@ -99,14 +193,23 @@ const FaceVerificationProgressScreen = ({ navigation }) => {
         </View>
 
         <Text style={styles.statusMessage}>
-          {progress < 30 ? '"Hang tight! Almost there..."' : 
-           progress < 60 ? '"Processing your verification..."' :
-           progress < 90 ? '"Almost complete..."' : 
+          {verificationStage === 'detecting' ? '"Detecting your face..."' :
+           verificationStage === 'ready' && countdown > 0 ? `"Taking photo in ${countdown}..."` :
+           verificationStage === 'captured' ? '"Photo captured! Processing..."' :
+           verificationStage === 'verifying' && progress < 50 ? '"Analyzing your face..."' :
+           verificationStage === 'verifying' && progress < 90 ? '"Almost complete..."' : 
            '"Verification successful!"'}
         </Text>
 
         <Text style={styles.instructionText}>
-          Please remain patient while we process your face verification. Look directly at the camera and maintain a natural expression for best results.
+          {verificationStage === 'detecting' ? 
+            'Look directly at the camera and position your face within the frame.' :
+            verificationStage === 'ready' && countdown > 0 ? 
+            'Face detected! Stay still while we take your photo.' :
+            verificationStage === 'captured' ? 
+            'Photo captured successfully. Please wait while we verify your identity.' :
+            'Processing your face verification. This will only take a moment.'
+          }
         </Text>
       </View>
 
@@ -136,9 +239,50 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
-  backgroundImage: {
+  camera: {
     width: '100%',
     height: '100%',
+  },
+  capturedImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    opacity: 0.8,
+  },
+  permissionText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    textAlign: 'center',
+    margin: 20,
+  },
+  permissionButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  permissionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  countdownContainer: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -50 }, { translateY: -50 }],
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(0, 122, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  countdownText: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   faceFrame: {
     position: 'absolute',

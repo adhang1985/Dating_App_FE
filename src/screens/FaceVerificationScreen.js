@@ -8,12 +8,32 @@ import {
   TouchableOpacity,
   Alert
 } from 'react-native';
+import { useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import CustomButton from '../components/CustomButton';
 
 const FaceVerificationScreen = ({ navigation }) => {
-  const handleFaceVerification = () => {
+  const [permission, requestPermission] = useCameraPermissions();
+
+  const handleFaceVerification = async () => {
     console.log('Starting face verification');
+    
+    if (!permission) {
+      Alert.alert('Camera Loading', 'Please wait while we prepare the camera...');
+      return;
+    }
+    
+    if (!permission.granted) {
+      const result = await requestPermission();
+      if (!result.granted) {
+        Alert.alert(
+          'Camera Permission Required',
+          'Please allow camera access to proceed with face verification.'
+        );
+        return;
+      }
+    }
+    
     navigation.navigate('FaceVerificationProgress');
   };
 

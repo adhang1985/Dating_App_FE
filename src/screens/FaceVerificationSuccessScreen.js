@@ -12,7 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import CustomButton from '../components/CustomButton';
 import { BlurView } from 'expo-blur';
 
-const FaceVerificationSuccessScreen = ({ navigation }) => {
+const FaceVerificationSuccessScreen = ({ navigation, route }) => {
+  const { capturedPhoto } = route.params || {};
   const handleContinue = () => {
     console.log('Face verification completed, proceeding to profile setup');
     // Navigate to profile setup after face verification
@@ -47,7 +48,7 @@ const FaceVerificationSuccessScreen = ({ navigation }) => {
           {/* Verified Photo */}
           <View style={styles.photoContainer}>
             <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face' }}
+              source={{ uri: capturedPhoto ? capturedPhoto.uri : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face' }}
               style={styles.verifiedPhoto}
               resizeMode="cover"
             />
